@@ -78,7 +78,8 @@ Jump scare: lights cut, white flash, huge face, screech. Then a fight: many taps
 ## Next steps (plan)
 1. ~~Split index.html into readable files (no gameplay changes)~~ done 2026-10-22.
    ~~git + GitHub~~ done 2026-10-23: public repo https://github.com/Bananamamba/-mosquitoKiller
-   (commits use the GitHub no-reply email, not a real address). Next: GitHub Pages for a shareable game link.
+   (commits use the GitHub no-reply email, not a real address).
+   Playable link (GitHub Pages, from main, updates ~1 min after each push): https://bananamamba.github.io/-mosquitoKiller/
 2. Finish the game (campaign stages), playtest with real people after each big change.
 3. Wrap as an app (Capacitor is the quickest path). Add haptics, offline play, Game Center / Play Games leaderboards.
 4. Ads: Google AdMob. Rewarded ad = "watch to get another chance" after 3 strikes; occasional interstitial; paid "Remove ads".
