@@ -1,0 +1,176 @@
+/* Layout: phone-shaped arena. The canvas is the whole game;
+   overlays sit on top of it for the menu and result screens. Single night look by choice. */
+
+/* ---------- palette & base ---------- */
+:root {
+  --night: #0f1424;
+  --night-2: #1c2440;
+  --steel: #e8eef7;
+  --blood: #e2354b;
+  --lamp: #ffc94d;
+  --ink: #070a14;
+  --muted: #93a0c4;
+  --sea: #2a9d8f;
+  --display: "Rubik Mono One", "Arial Black", system-ui, sans-serif;
+  --body: "Rubik", system-ui, sans-serif;
+  color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  background: radial-gradient(110% 70% at 50% 0%, var(--night-2), var(--night) 70%);
+  color: var(--steel);
+  font-family: var(--body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 14px;
+  display: flex;
+  justify-content: center;
+  box-sizing: border-box;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- header ---------- */
+.stage { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
+h1 { font-family: var(--display); font-size: 1.75rem; line-height: 1; margin: 0; letter-spacing: -.5px; }
+h1 span { color: var(--blood); }
+.tag { font-weight: 700; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--lamp); }
+
+/* ---------- canvas & overlay ---------- */
+.wrap { position: relative; }
+#cv {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 0 0 0 2px #26304f, 0 18px 40px rgba(0, 0, 0, .5);
+  touch-action: none;
+  cursor: pointer;
+  background: #05070e;
+}
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: safe center;
+  gap: 12px;
+  text-align: center;
+  padding: 20px;
+  background: rgba(7, 10, 20, .88);
+  border-radius: 14px;
+  overflow-y: auto;
+}
+.overlay h2 { font-family: var(--display); font-size: 1.7rem; line-height: 1.05; margin: 0; }
+.overlay p { margin: 0; max-width: 30ch; line-height: 1.45; color: var(--muted); }
+.overlay p.small { font-size: .82rem; }
+
+/* ---------- overlay content ---------- */
+.steps { display: grid; gap: 7px; text-align: left; max-width: 31ch; font-size: .9rem; line-height: 1.35; color: var(--muted); }
+.steps b { color: var(--steel); }
+.types {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 12px;
+  text-align: left;
+  font-size: .82rem;
+  color: var(--muted);
+  max-width: 31ch;
+}
+.types b { color: var(--steel); }
+.big { font-family: var(--display); font-size: 3.4rem; color: var(--lamp); line-height: 1; font-variant-numeric: tabular-nums; }
+.rank { font-weight: 800; font-size: 1.15rem; }
+.hint { font-size: .9rem; color: var(--muted); text-align: center; }
+
+/* ---------- buttons ---------- */
+.btns { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 260px; }
+button {
+  font-family: var(--display);
+  font-size: .95rem;
+  border: 0;
+  background: var(--blood);
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #8f1626;
+}
+button.beach { background: var(--sea); box-shadow: 0 5px 0 #1b6a61; }
+button:active { transform: translateY(3px); box-shadow: 0 2px 0 #8f1626; }
+button.beach:active { box-shadow: 0 2px 0 #1b6a61; }
+button:focus-visible { outline: 3px solid var(--lamp); outline-offset: 3px; }
+button.lamp { background: var(--lamp); color: var(--ink); box-shadow: 0 5px 0 #9c7a1f; }
+button.lamp:active { box-shadow: 0 2px 0 #9c7a1f; }
+
+/* ---------- upgrade card backs/faces (legacy: cards are no longer offered) ---------- */
+.backs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 330px; }
+button.back {
+  height: 130px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, .25);
+  box-shadow: 0 5px 0 #0b0f1d;
+  padding: 6px;
+}
+button.back b { font-family: var(--display); font-size: 2rem; font-weight: 400; color: #fff; }
+button.back span {
+  font-family: var(--body);
+  font-weight: 800;
+  font-size: .78rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .9);
+}
+.back.g, .face.g { background: repeating-linear-gradient(45deg, #2f8f5b 0 8px, #2a7f51 8px 16px); }
+.back.p, .face.p { background: repeating-linear-gradient(45deg, #6b4bb8 0 8px, #5d40a3 8px 16px); }
+.back.r, .face.r { background: repeating-linear-gradient(45deg, #b8323f 0 8px, #a32b37 8px 16px); }
+.face {
+  border-radius: 12px;
+  padding: 10px 8px;
+  min-height: 130px;
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  text-align: left;
+  opacity: .4;
+  border: 2px solid transparent;
+}
+.face.mine { opacity: 1; border-color: var(--lamp); }
+.face b { font-family: var(--display); font-size: .7rem; font-weight: 400; color: #fff; line-height: 1.25; }
+.face span { font-size: .74rem; color: rgba(255, 255, 255, .92); line-height: 1.3; }
+
+/* ---------- menu cards (room / mode picker) ---------- */
+.cards { display: grid; gap: 10px; width: 100%; max-width: 290px; }
+button.card {
+  display: grid;
+  gap: 3px;
+  text-align: left;
+  background: #1c2440;
+  color: var(--steel);
+  border: 2px solid #3a4677;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 0 #0b0f1d;
+  font-family: var(--body);
+}
+button.card:hover { border-color: var(--lamp); }
+button.card:active { box-shadow: 0 1px 0 #0b0f1d; }
+.card b { font-family: var(--display); font-size: .88rem; color: var(--lamp); font-weight: 400; }
+.card span { font-size: .86rem; color: var(--muted); line-height: 1.3; }
+.card i { font-style: normal; font-size: .75rem; color: #6fd3c4; }
+
+/* ---------- bug spray button (legacy perk) with cooldown shade ---------- */
+button.spray { position: relative; overflow: hidden; background: #3a8f4a; box-shadow: 0 5px 0 #1f5a2a; }
+button.spray:active { box-shadow: 0 2px 0 #1f5a2a; }
+.spray .cd { position: absolute; inset: 0 auto 0 0; width: var(--cd, 0%); background: rgba(0, 0, 0, .5); pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  button:active { transform: none; }
+}
