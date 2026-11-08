@@ -86,35 +86,61 @@ function mosq(x, y, face, landed, t, ph, sc, kind, blood) {
   g.restore();
 }
 
-// The blue flip-flop that slams down on every tap. s: scale, rot: angle, a: opacity.
-function slipper(x, y, s, rot, a) {
-  g.save();
-  g.globalAlpha = a;
-  g.translate(x, y);
-  g.rotate(rot);
-  g.scale(s, s);
+// Slipper looks (shop). w = half the sole width; the rest are colors.
+const SLIPPER_SKINS = {
+  basic: { w: 19, outer: "#1d4f9c", inner: "#3d86e8", strapOut: "#0f2d5c", strapIn: "#f2f0ea" },
+  quiet: { w: 19, outer: "#c4487c", inner: "#ff9cc4", strapOut: "#8c2c56", strapIn: "#fff0f6", fluffy: true },
+  eagle: { w: 19, outer: "#173f27", inner: "#2f8f57", strapOut: "#0b1f13", strapIn: "#1a1a1a", eye: true },
+  wide: { w: 26, outer: "#b04a12", inner: "#ff8a3d", strapOut: "#5a2408", strapIn: "#ffe2b8" },
+};
+
+// The flip-flop that slams down on every tap. s: scale, rot: angle, a: opacity,
+// skin: which slipper (SLIPPER_SKINS), c: canvas to draw on (the game, or a shop preview).
+function slipper(x, y, s, rot, a, skin = "basic", c = g) {
+  const k = SLIPPER_SKINS[skin] || SLIPPER_SKINS.basic, w = k.w;
+  c.save();
+  c.globalAlpha = a;
+  c.translate(x, y);
+  c.rotate(rot);
+  c.scale(s, s);
   // sole
-  g.fillStyle = "#1d4f9c";
-  g.beginPath(); g.roundRect(-19, -50, 38, 100, [19, 19, 16, 16]); g.fill();
-  g.fillStyle = "#3d86e8";
-  g.beginPath(); g.roundRect(-16, -47, 32, 93, [16, 16, 13, 13]); g.fill();
-  g.fillStyle = "rgba(255,255,255,.13)";
-  for (let yy = -36; yy < 40; yy += 9) g.fillRect(-11, yy, 22, 2);
-  // V strap (dark outline under a white strap)
-  g.lineCap = "round";
-  g.beginPath();
-  g.moveTo(-16, 4);
-  g.quadraticCurveTo(-6, -14, 0, -28);
-  g.quadraticCurveTo(6, -14, 16, 4);
-  g.strokeStyle = "#0f2d5c";
-  g.lineWidth = 9;
-  g.stroke();
-  g.strokeStyle = "#f2f0ea";
-  g.lineWidth = 6;
-  g.stroke();
-  g.fillStyle = "#0f2d5c";
-  g.beginPath(); g.arc(0, -28, 4, 0, 7); g.fill();
-  g.restore();
+  c.fillStyle = k.outer;
+  c.beginPath(); c.roundRect(-w, -50, w * 2, 100, [w, w, 16, 16]); c.fill();
+  c.fillStyle = k.inner;
+  c.beginPath(); c.roundRect(-w + 3, -47, w * 2 - 6, 93, [w - 3, w - 3, 13, 13]); c.fill();
+  if (k.fluffy) {
+    // soft fur around the edge
+    c.fillStyle = "rgba(255,255,255,.75)";
+    for (let i = 0; i < 18; i++) {
+      const an = i / 18 * Math.PI * 2;
+      c.beginPath(); c.arc(Math.cos(an) * (w - 1), Math.sin(an) * 47, 3.2, 0, 7); c.fill();
+    }
+  } else {
+    c.fillStyle = "rgba(255,255,255,.13)";
+    for (let yy = -36; yy < 40; yy += 9) c.fillRect(-w + 8, yy, w * 2 - 16, 2);
+  }
+  if (k.eye) {
+    // eye logo on the heel
+    c.fillStyle = "#f2f0ea";
+    c.beginPath(); c.ellipse(0, 28, 10, 6, 0, 0, 7); c.fill();
+    c.fillStyle = "#0b1f13";
+    c.beginPath(); c.arc(0, 28, 3.6, 0, 7); c.fill();
+  }
+  // V strap (dark outline under a lighter strap)
+  c.lineCap = "round";
+  c.beginPath();
+  c.moveTo(-w + 3, 4);
+  c.quadraticCurveTo(-6, -14, 0, -28);
+  c.quadraticCurveTo(6, -14, w - 3, 4);
+  c.strokeStyle = k.strapOut;
+  c.lineWidth = 9;
+  c.stroke();
+  c.strokeStyle = k.strapIn;
+  c.lineWidth = 6;
+  c.stroke();
+  c.fillStyle = k.strapOut;
+  c.beginPath(); c.arc(0, -28, k.fluffy ? 6 : 4, 0, 7); c.fill();
+  c.restore();
 }
 
 // The Queen's huge face. mood: "scare" | "laugh" | "wind" (about to sting) | "hover".

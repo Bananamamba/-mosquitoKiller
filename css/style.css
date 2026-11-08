@@ -101,6 +101,33 @@ button:focus-visible { outline: 3px solid var(--lamp); outline-offset: 3px; }
 button.lamp { background: var(--lamp); color: var(--ink); box-shadow: 0 5px 0 #9c7a1f; }
 button.lamp:active { box-shadow: 0 2px 0 #9c7a1f; }
 
+button:disabled { opacity: .45; cursor: default; }
+.coins { color: var(--lamp); }
+
+/* ---------- slipper shop / picker ---------- */
+.shop { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; max-width: 330px; }
+.slipcard {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 3px;
+  padding: 8px 6px;
+  text-align: center;
+  background: #1c2440;
+  color: var(--steel);
+  border: 2px solid #3a4677;
+  border-radius: 12px;
+  box-shadow: none;
+  font-family: var(--body);
+}
+button.slipcard:active { transform: none; box-shadow: none; }
+.slipcard.sel { border-color: var(--lamp); background: #2a3358; }
+.slipcard canvas.slip { width: 64px; height: 84px; }
+.slipcard b { font-family: var(--display); font-weight: 400; font-size: .75rem; color: var(--lamp); }
+.slipcard span { font-size: .72rem; line-height: 1.25; color: var(--muted); }
+.slipcard i { font-style: normal; font-size: .75rem; font-weight: 800; color: #9be59b; }
+button.buy { font-size: .7rem; padding: 6px 12px; }
+
 @media (prefers-reduced-motion: reduce) {
   button:active { transform: none; }
 }

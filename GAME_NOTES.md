@@ -62,6 +62,23 @@ The run itself does not change. A new place gets tricksters, events and fever by
 - **Test mode**: open the game with `?debug` (e.g. `.../-mosquitoKiller/?debug`) to see on screen how many
   seconds each place took (also printed in the browser console). Use it to tune `pps` / `targetSeconds`.
 
+## Coins and the slipper shop
+- Coins are saved across runs (localStorage `mosq-coins`). Earned from: completed bonus missions
+  (10 + 5 per loop) and score (every 500 points in a run = 5 coins). The spider takes 5.
+- End screen shows only "Coins earned this run". Menu and shop show the player's total.
+- Shop (button on the main menu): 4 slippers, each with its own look, a one-line perk and a price.
+  Bought ones say "Owned". Perks are small on purpose:
+  - Basic (free, blue): no perk.
+  - Quiet (250, pink and fluffy): Moshe's wake meter fills 10% slower.
+  - Eagle Eye (500, dark green with an eye): a decoy bug flashes for 0.5 s when it appears.
+  - Wide (900, orange, broad sole): 10% bigger hit area (also for The One).
+- Prices aim at: first slipper after 2–3 good runs (~95 coins each in the bot test), the most
+  expensive after 8–10. Prices and perks are in `config.js` (`slippers`, `scoreCoins`).
+- Before each run: pick one of your slippers (skipped if you only own Basic). The last pick is the
+  default (`mosq-slipper`). The picked slipper is the one you see slamming down in the game.
+- Code: `js/shop.js`; slipper looks in `SLIPPER_SKINS` (`js/draw/sprites.js`); perks read with
+  `slipperPerk(key, fallback)`.
+
 ## Missions (numbers grow every loop, all in config)
 - Bedroom: squash X mosquitoes · X in a row without a miss · squash X golden ones (more gold during it).
 - Beach: X kills before the wake meter passes half · pull out X belly stuckers (they join during it) ·
@@ -105,7 +122,7 @@ splitter (splits into 3 minis) · belly stucker (beach only: digs in, press and 
 - More places: kitchen, tundra, library and more. Each one is added in its own step (one file each).
 - Friends leaderboard with light one-round "curses" (e.g. a bent slipper, fog). They should use the
   existing effects system (`startEffect`), the same as tricksters.
-- Slipper shop (spends the saved coins) and leaderboards: next step, not built yet.
+- Leaderboards: not built yet. No real-money purchases and no ads yet.
 
 ## Decisions still open
 - Final game name (no sword anymore, so "Samurai" may not fit).
@@ -133,5 +150,6 @@ splitter (splits into 3 minis) · belly stucker (beach only: digs in, press and 
   In loop 2+ the bot often lost a life in the bedroom from bites before reaching the threshold:
   watch this with real players.
 - Sounds are synthesized in code (placeholder).
-- localStorage keys: mosq-best (best run), mosq-coins (total coins), mosq-seen (explanations already shown).
+- localStorage keys: mosq-best (best run), mosq-coins (total coins), mosq-seen (explanations already shown),
+  mosq-owned (slippers bought), mosq-slipper (last picked slipper).
   Old keys from earlier versions (mosq-endless, mosq-ck, mosq-run-best, mosq-run-nights) are no longer used.

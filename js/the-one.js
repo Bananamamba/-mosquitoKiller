@@ -139,7 +139,7 @@ function oneSlap(p) {
   if (!o || o.dead || !S.playing || S.banner) return;
   S.slaps.push({ x: p.x, y: p.y, rot: -.55 + Math.random() * .4, t: 0 });
   S.slapLight = { x: p.x, y: p.y, t: .25 };   // the slap briefly lights the spot
-  const r = (o.landed ? 34 : 26) + (S.lvl ? 0 : 8);
+  const r = ((o.landed ? 34 : 26) + (S.lvl ? 0 : 8)) * slipperPerk("hitMult", 1);
   missionEvent("slap");
   if (Math.hypot(o.x - p.x, o.y - p.y) < r) {
     // got it

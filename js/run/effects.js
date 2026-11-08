@@ -66,6 +66,6 @@ function drawFog(now) {
 function drawSlowTaps() {
   S.slowTaps.forEach(s => {
     const k = 1 - s.t / s.max;
-    slipper(s.p.x, s.p.y - 40 * (1 - k), .9 + .7 * (1 - k), -.3, .35 + .4 * k);
+    slipper(s.p.x, s.p.y - 40 * (1 - k), .9 + .7 * (1 - k), -.3, .35 + .4 * k, currentSlipper().id);
   });
 }

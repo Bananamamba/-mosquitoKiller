@@ -16,7 +16,7 @@ const LIFE_TXT = {
 function startRun() {
   audioOn();
   Object.assign(S, {
-    playing: true, lives: CFG.run.lives, score: 0, kills: 0, runCoins: 0,
+    playing: true, lives: CFG.run.lives, score: 0, kills: 0, runCoins: 0, scoreSteps: 0,
     visits: {}, placeTimes: [], trickT: CFG.tricksters.firstAfter, banner: null, banners: []
   });
   ov.hidden = true;
@@ -114,10 +114,21 @@ function loseLife(reason, stay) {
   if (!stay) enterPlace(S.placeIdx + 1);
 }
 
-// Per frame while playing: mission checks and the score threshold.
+// Coins from score: every CFG.scoreCoins.every points (counted once, even if the score drops later).
+function scoreCoins() {
+  const c = CFG.scoreCoins, steps = Math.floor(S.score / c.every);
+  if (steps <= S.scoreSteps) return;
+  const coins = (steps - S.scoreSteps) * c.amount;
+  S.scoreSteps = steps;
+  S.runCoins += coins;
+  pop(W / 2, 214, `${steps * c.every} points! +${coins} coins`, "#ffc94d", 15);
+}
+
+// Per frame while playing: mission checks, score coins and the score threshold.
 function updRun(dt) {
   S.placeT += dt;
   missionEvent("tick");
+  scoreCoins();
   const place = currentPlace();
   if (place.threshold && !S.q && S.playing && S.score - S.placeStart >= S.threshold) placeCleared();
 }
@@ -125,6 +136,7 @@ function updRun(dt) {
 // Out of lives: end screen with score, how far you got, coins and personal best.
 function endRun(reason) {
   const place = currentPlace(), reached = `Loop ${S.lvl + 1} · ${place.name}`;
+  scoreCoins();
   if (place.leave) place.leave();
   clearPlace();
   Object.assign(S, { playing: false, banner: null, banners: [], paused: false, hold: false, pull: null, lightsOn: 0 });
@@ -136,7 +148,7 @@ function endRun(reason) {
 
   ov.innerHTML = `<p>${LIFE_TXT[reason] || ""}</p><h2>Run over</h2>`
     + `<div class="big">${S.score}</div><div class="rank">Reached: ${reached}</div>`
-    + `<p>Coins this run: ${S.runCoins} · Total coins: ${COINS}</p>`
+    + `<p>Coins earned this run: <b class="coins">${S.runCoins}</b></p>`
     + `<p>Best: ${BEST.score}${nb ? " · new record!" : ""}</p>`
     + `<div class="btns"><button type="button" data-run="1">Run again</button>`
     + `<button type="button" class="beach" data-menu="1">Menu</button></div>`;

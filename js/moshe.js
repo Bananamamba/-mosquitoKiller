@@ -72,6 +72,7 @@ function moshePoint() {
 // Raise the wake meter. Full = he wakes up, everything flies away, and a life is lost.
 function wakeAdd(v) {
   if (STAGE !== "beach" || S.awakeT > 0) return;
+  v *= slipperPerk("wakeMult", 1);   // the Quiet slipper
   S.wake = Math.min(1, S.wake + v);
   if (S.wake >= 1) {
     S.wokeBy = S.wokeBy || "wake";

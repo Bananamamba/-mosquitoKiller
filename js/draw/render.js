@@ -321,7 +321,7 @@ function drawSlaps() {
     g.rotate(s.rot);
     g.beginPath(); g.ellipse(0, 0, 19 * sc, 44 * sc, 0, 0, 7); g.fill();
     g.restore();
-    slipper(s.x, s.y + off, sc * (s.big ? 1.6 : .9), s.rot, a);
+    slipper(s.x, s.y + off, sc * (s.big ? 1.6 : .9), s.rot, a, currentSlipper().id);
   });
 }
 

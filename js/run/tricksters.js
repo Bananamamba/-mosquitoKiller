@@ -81,7 +81,8 @@ function spawnTrick() {
   const spot = place.trickSpot ? place.trickSpot() : { x: 40 + Math.random() * 280, y: 110 + Math.random() * 320 };
   const b = {
     kind, style: place.trickArrive || "fly", state: "in", st: 0, ph: Math.random() * 9,
-    hx: spot.x, hy: spot.y, x: spot.x, y: spot.y, a: 0, dir: Math.random() < .5 ? 1 : -1, stay: rand(c.stay)
+    hx: spot.x, hy: spot.y, x: spot.x, y: spot.y, a: 0, dir: Math.random() < .5 ? 1 : -1, stay: rand(c.stay),
+    flash: slipperPerk("trickFlash", 0)   // Eagle Eye slipper: flashes when it appears
   };
   if (b.style === "fly") {
     // enter from the left, the right or the top, like a beach mosquito
@@ -103,6 +104,7 @@ function spawnTrick() {
 function moveTrick(b, dt) {
   b.st += dt;
   b.ph += dt;
+  b.flash = Math.max(0, b.flash - dt);
   if (b.state === "in") {
     if (b.style === "pop") {
       b.a = Math.min(1, b.st / .1);
@@ -176,6 +178,14 @@ function drawTrick(now) {
   if (!b) return;
   g.save();
   g.globalAlpha = b.a;
+  if (b.flash > 0 && Math.floor(b.flash / .08) % 2 === 0) {
+    // Eagle Eye: a blinking white glow around it
+    const gr = g.createRadialGradient(b.x, b.y, 4, b.x, b.y, 38);
+    gr.addColorStop(0, "rgba(255,255,255,.9)");
+    gr.addColorStop(1, "rgba(255,255,255,0)");
+    g.fillStyle = gr;
+    g.beginPath(); g.arc(b.x, b.y, 38, 0, 7); g.fill();
+  }
   TRICKS[b.kind].draw(b.x, b.y, 1, b.dir, now);
   g.restore();
 }

@@ -62,7 +62,7 @@ function tap(p) {
   }
 
   // find the nearest mosquito within reach (fever = bigger slipper)
-  let best = null, bd = 42 + (S.feverT > 0 ? 20 : 0);
+  let best = null, bd = 42 * slipperPerk("hitMult", 1) + (S.feverT > 0 ? 20 : 0);
   S.bugs.forEach(b => {
     if (b.dead || (b.state === "out" && b.a < .5)) return;
     const dd = Math.hypot(b.x - p.x, b.y - p.y);

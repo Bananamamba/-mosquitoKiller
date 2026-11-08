@@ -70,4 +70,17 @@ const CFG = {
   fever: { perKill: .07, perGold: .15, perMiss: .25, sec: 6, points: 3 },
 
   queen: { fromLoop: 1, chance: .5, at: [10, 25] },   // bedroom: chance per visit, seconds into the visit
+
+  // Coins from score: every `every` points in a run gives `amount` coins (on top of bonus missions).
+  scoreCoins: { every: 500, amount: 5 },
+
+  // Slipper shop. A good run earns ~95 coins (bot test), so: first slipper after 2-3 good runs,
+  // the most expensive after 8-10. Perks are small on purpose:
+  //   hitMult = bigger hit area, wakeMult = Moshe's meter fills slower, trickFlash = seconds a decoy flashes.
+  slippers: [
+    { id: "basic", name: "Basic", price: 0, perk: "The classic. Everyone has it." },
+    { id: "quiet", name: "Quiet", price: 250, perk: "Moshe's wake meter fills 10% slower", wakeMult: .9 },
+    { id: "eagle", name: "Eagle Eye", price: 500, perk: "Decoy bugs flash for 0.5s when they appear", trickFlash: .5 },
+    { id: "wide", name: "Wide", price: 900, perk: "10% bigger hit area", hitMult: 1.1 },
+  ],
 };
