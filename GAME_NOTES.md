@@ -120,6 +120,9 @@ splitter (splits into 3 minis) · belly stucker (beach only: digs in, press and 
 
 ## Known caveats
 - All balance numbers were tested by a bot, not tuned with humans yet.
+  Bot result 2026-11-08 (3 full runs): loop 1 bedroom 31–37 s, beach 27–55 s (target 35–45).
+  In loop 2+ the bot often lost a life in the bedroom from bites before reaching the threshold:
+  watch this with real players.
 - Sounds are synthesized in code (placeholder).
 - localStorage keys: mosq-best (best run), mosq-coins (total coins), mosq-seen (explanations already shown).
   Old keys from earlier versions (mosq-endless, mosq-ck, mosq-run-best, mosq-run-nights) are no longer used.

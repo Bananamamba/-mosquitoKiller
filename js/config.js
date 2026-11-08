@@ -10,10 +10,12 @@ const CFG = {
   },
 
   // Score threshold = average player's points per second × target seconds × growPerLoop^loop.
-  // pps (points per second) was measured with a bot "average player"; index = loop (last value repeats).
+  // pps (points per second) was measured with a bot "average player" (~75% accurate, a tap every ~0.4 s,
+  // median of 10 rounds); index = loop (last value repeats). Scoring varies a lot (fever × streak),
+  // and later loops score much faster, so check real players with ?debug and adjust these first.
   places: {
-    bed: { targetSeconds: 40, growPerLoop: 1.10, pps: [2.1, 2.6, 3.0], maxBites: 6 },
-    beach: { targetSeconds: 40, growPerLoop: 1.10, pps: [1.6, 2.1, 2.5] },
+    bed: { targetSeconds: 40, growPerLoop: 1.10, pps: [5, 12, 13], maxBites: 6 },
+    beach: { targetSeconds: 40, growPerLoop: 1.10, pps: [2.8, 8, 8] },
     one: { seconds: 45, slaps: [4, 3], lamps: [3, 2], maxBites: 3 },  // [first loop, later loops]
   },
 
