@@ -1,4 +1,4 @@
-// Main loop: one update + draw per animation frame. The update order matters (same as the prototype).
+// Main loop: one update + draw per animation frame.
 
 let last = performance.now();
 
@@ -9,81 +9,39 @@ function frame(now) {
   if (S.stop > 0) { S.stop -= dt; draw(now); requestAnimationFrame(frame); return; }
   if (S.paused) { draw(now); requestAnimationFrame(frame); return; }
   S.t += dt;
+  const place = currentPlace();
 
   if (S.awakeT > 0) {
-    // Moshe is awake and angry: wait, then lose the night
+    // Moshe is awake and angry: wait, then the life is lost
     S.awakeT -= dt;
-    if (S.awakeT <= 0) { S.awakeT = 0; finish(S.wokeBy || "wake"); }
+    if (S.awakeT <= 0) { S.awakeT = 0; loseLife(S.wokeBy || "wake"); }
   } else if (S.playing && S.banner) {
-    // banner on screen: the game waits
+    // banner on screen: the game waits; queued banners follow
     S.banner.t -= dt;
-    if (S.banner.t <= 0) S.banner = null;
-  } else {
-    if (S.sprayCD > 0) S.sprayCD -= dt;
-    // campaign bedroom: the Queen comes at her random second
-    if (S.playing && STAGE === "bed" && !S.q && !S.queenDone && elapsed() >= S.queenAt) queenStart();
-    if (S.endless && S.playing && STAGE !== "one") updEndless(dt);
+    if (S.banner.t <= 0) S.banner = S.banners.shift() || null;
+  } else if (S.playing) {
+    // any of these may lose a life and move to the next place, so later steps check same()
+    const same = () => S.playing && currentPlace() === place;
+    if (place.update) place.update(dt);
+    if (place.events) updEvents(dt);
+    updTricksters(dt);
+    updEffectTimers(dt);
+    updSlowTaps(dt);
     updPull(dt);
-    updClock(dt);
     if (S.q) updQueen(dt);
-    if (STAGE === "one") {
-      if (S.playing && !S.paused) updOne(dt);
-    } else if (!S.q && !S.paused) updSpawning(dt);
+    if (place.spawnWave && !S.q && same()) updSpawning(dt, place);
+    if (same()) updRun(dt);
+  } else if (place.spawnWave) {
+    // menu / end screen: a few silent mosquitoes in the background
+    updSpawning(dt, place);
   }
 
   updTimers(dt);
-  if (STAGE === "beach" && S.playing && !S.awakeT && !S.q && !S.banner) updMosheIdle(dt);
   S.bugs.forEach(b => updBug(b, dt));
   S.bugs = S.bugs.filter(b => !b.dead);
-  updEffects(dt);
+  updParticles(dt);
   draw(now);
   requestAnimationFrame(frame);
-}
-
-// Endless (bedroom / beach): tiers, speed steps, the Queen, random events.
-function updEndless(dt) {
-  S.tierT = (S.tierT || 0) + dt;
-  if (S.blitz) {
-    // legacy 60-second mode: a new type every 9 seconds
-    const nt = Math.min(ORDER[STAGE].length, Math.floor((S.dur - S.left) / 9));
-    if (nt > S.tier) {
-      S.tier = nt;
-      S.lvl = nt * .6;
-      S.intro = ORDER[STAGE][nt - 1];
-      pop(W / 2, 170, TDESC[S.intro].split(" · ")[0] + "!", "#c9a0ff", 17);
-    }
-  } else if (!S.q && !S.paused) {
-    const nt = tierOf(S.score);
-    if (nt > S.tier) tierUp(nt);
-  }
-
-  // harder every 10 s: easy for the first 50 s, then lvl +0.25 per step, max at ~5 min
-  S.runT = (S.runT || 0) + dt;
-  const st = Math.floor(S.runT / 10);
-  if (st !== S.step) {
-    S.step = st;
-    S.lvl = Math.min(6, st < 5 ? 0 : (st - 4) * .25);
-    if (st >= 5 && st <= 28) pop(W / 2, 104, st === 28 ? "MAX SPEED" : "FASTER", "#ff9a4d", 13);
-  }
-
-  // the Queen: next visit 1.5-3 minutes later
-  if (!S.blitz && !S.q && !S.paused && S.runT >= S.queenNext) {
-    S.queenCount = (S.queenCount || 0) + 1;
-    S.queenNext = S.runT + 90 + Math.random() * 90;
-    S.queenDone = false;
-    queenStart();
-  }
-
-  // random events (paused during the Queen)
-  if (!S.q) {
-    if (S.ev) {
-      S.ev.t -= dt;
-      if (S.ev.t <= 0) S.ev = null;
-    } else {
-      S.evT -= dt;
-      if (S.evT <= 0) startEvent();
-    }
-  }
 }
 
 // Belly stucker: holding on it for 0.5 s pulls it out.
@@ -95,46 +53,28 @@ function updPull(dt) {
     const b = S.pull.b;
     S.pull = null;
     if (AC) tone(AC.currentTime, "sine", 500, 1400, .25, .005, .12);
+    missionEvent("pull");
     killBug(b);
     pop(b.hx, b.hy - 84, "PLOP!", "#ffc94d", 18);
   }
 }
 
-// Night clock (not in endless bedroom/beach). Stops during the Queen and after catching The One.
-function updClock(dt) {
-  if (!(S.playing && !S.q && !(S.one && S.one.dead) && (!S.endless || S.blitz || STAGE === "one"))) return;
-  S.left -= dt;
-  if (S.left <= 0) {
-    S.left = 0;
-    if (STAGE === "one") finish("sunrise");
-    else if (S.blitz) finish("time");
-    else stageWon();
-  }
-}
-
-// Spawning in bedroom / beach: a max number on screen (cap) that grows with time,
-// and a spawn timer that gets shorter. Swarm and fever add more and spawn faster.
-function updSpawning(dt) {
-  const e = elapsed() + S.lvl * 10, BCH = STAGE === "beach", EZ = !S.lvl;   // EZ = first loop (eased)
-  const swarm = S.ev && S.ev.k === "swarm";
-  const cap = S.playing
-    ? (BCH ? (EZ ? 1 + Math.min(2, Math.floor(e / 12)) : 2 + Math.min(3, Math.floor(e / 12))) : 1 + Math.min(2, Math.floor(e / (EZ ? 14 : 10))))
-    : 1;
-  S.spawn -= dt * (S.feverT > 0 ? 1.8 : 1) * (swarm ? 5 : 1);
-  if (S.spawn <= 0 && S.bugs.filter(b => b.state !== "out").length < cap + (swarm ? 5 : 0) + (S.feverT > 0 ? 2 : 0)) {
-    if (BCH) spawnBeachWave();
-    else spawnWave();
-    S.spawn = S.playing
-      ? (BCH ? (EZ ? Math.max(.7, 1.3 - e * .015) : Math.max(.4, .95 - e * .016)) : (EZ ? Math.max(.45, 1 - e * .015) : Math.max(.3, .85 - e * .017)))
-      : 1.4;
+// Spawning: a max number on screen (cap) that grows with time, and a spawn timer that gets shorter.
+// The place sets both; fever and the "bad luck" effect add more and spawn faster.
+function updSpawning(dt, place) {
+  const e = elapsed() + S.lvl * 10, more = effectOn("moreEnemies") ? CFG.effects.moreEnemies : null;
+  const cap = S.playing ? place.spawnCap(e) : 1;
+  S.spawn -= dt * (S.feverT > 0 ? 1.8 : 1) * (more ? more.spawnMult : 1);
+  if (S.spawn <= 0 && S.bugs.filter(b => b.state !== "out").length < cap + (more ? more.capAdd : 0) + (S.feverT > 0 ? 2 : 0)) {
+    place.spawnWave();
+    S.spawn = S.playing ? place.spawnGap(e) : 1.4;
   }
   // fat ones coming back after a bite
   S.fatQ.forEach(f => f.t -= dt);
   if (S.fatQ.length && S.fatQ[0].t <= 0) {
     S.fatQ.shift();
     if (S.playing) {
-      if (BCH) spawnBeachBug("fat");
-      else newBug("fat", freePoint(), 1.6);
+      place.spawnFat();
       pop(W / 2, 120, "It's back. Full of blood.", "#ff8a8a", 13);
     }
   }
@@ -145,12 +85,12 @@ function updTimers(dt) {
   S.shake = Math.max(0, S.shake - dt);
   S.flash = Math.max(0, S.flash - dt);
   S.bitFlash = Math.max(0, S.bitFlash - dt);
+  S.fade = Math.max(0, (S.fade || 0) - dt);
   S.bumps.forEach(u => { if (u.R && u.r < u.R) u.r = Math.min(u.R, u.r + dt * 30); });   // bumps grow in
   S.jig = Math.max(0, S.jig - dt * 2.2);
   S.smile = Math.max(0, S.smile - dt);
   S.frown = Math.max(0, S.frown - dt);
-  S.wake = Math.max(0, S.wake - (S.lvl ? .02 : .03) * (1 + (S.perks.lull || 0)) * dt);   // Moshe settles down slowly
-  S.rage = Math.max(0, S.rage - dt);
+  S.wake = Math.max(0, S.wake - (S.lvl ? .02 : .03) * dt);   // Moshe settles down slowly
   if (S.feverT > 0) {
     // fever beat: a kick drum every 0.25 s
     S.feverT -= dt;
@@ -165,7 +105,6 @@ function updTimers(dt) {
     S.slapLight.t -= dt;
     if (S.slapLight.t <= 0) S.slapLight = null;
   }
-  if (S.perks.spray) sprayBtn.style.setProperty("--cd", Math.max(0, S.sprayCD / sprayMax() * 100) + "%");
 }
 
 // Beach: Moshe rolls over now and then (everything on screen is mirrored when it finishes), and snores.
@@ -192,7 +131,7 @@ function updMosheIdle(dt) {
 }
 
 // Particles, slipper marks, floating texts and slap animations: move and expire.
-function updEffects(dt) {
+function updParticles(dt) {
   S.fx.forEach(f => {
     f.life -= dt;
     if (f.kind === "drop") {

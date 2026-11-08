@@ -69,10 +69,9 @@ function moshePoint() {
   return { x, y, zone, ang: Math.atan2(-ny, -nx) };
 }
 
-// Raise the wake meter. Full = he wakes up, everything flies away, and the night is lost.
+// Raise the wake meter. Full = he wakes up, everything flies away, and a life is lost.
 function wakeAdd(v) {
   if (STAGE !== "beach" || S.awakeT > 0) return;
-  v *= Math.pow(.7, S.perks.deep || 0);
   S.wake = Math.min(1, S.wake + v);
   if (S.wake >= 1) {
     S.wokeBy = S.wokeBy || "wake";
@@ -114,17 +113,9 @@ function rollOver() {
   });
 }
 
-// Empty slap on the face = instant loss (unless the Steady Hand perk forgives it).
+// Empty slap on the face = he wakes up furious and a life is lost.
 function faceSlap() {
   if (S.awakeT > 0) return;
-  if ((S.perks.steady || 0) > S.steadyUsed) {
-    S.steadyUsed++;
-    S.frown = 1.5;
-    S.jig = .5;
-    sfx("oi");
-    pop((S.flip ? W - 70 : 70), 372, "Hmmph... (Steady Hand)", "#ffe0c0", 14);
-    return;
-  }
   S.wokeBy = "face";
   S.wake = 1;
   S.awakeT = 2;

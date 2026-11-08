@@ -5,7 +5,7 @@
 // p = landing spot on Moshe (from moshePoint). sc = size per type.
 function spawnBeachBug(type, p) {
   p = p || moshePoint();
-  const e = elapsed() * .6 + S.lvl * 10, PK = S.perks || {};
+  const e = elapsed() * .6 + S.lvl * 10;
   const sc = type === "fat" ? 2 : type === "coward" ? 1.35 : type === "mini" ? 1.05 : type === "splitter" ? 1.95 : 1.6;
   // stop a bit away from the skin, along the surface normal, so the needle touches it
   const off = 16 * sc, tx = p.x - Math.cos(p.ang) * off, ty = p.y - Math.sin(p.ang) * off;
@@ -19,7 +19,7 @@ function spawnBeachBug(type, p) {
     type, beach: true, x: sx, y: sy, sx, sy, tx, ty, hx: p.x, hy: p.y, zone: p.zone, ang: p.ang,
     hd: Math.atan2(ty - sy, tx - sx), state: "fly", st: 0,
     // flight time (heat wave and fakers are faster)
-    dur: ((S.ev && S.ev.k === "heat") ? .65 : 1) * (type === "faker" ? .8 : 1) * Math.max(.8, (S.lvl ? 1.5 : 1.9) - e * .02) * Math.pow(1.2, PK.slow || 0),
+    dur: (heatOn() ? .65 : 1) * (type === "faker" ? .8 : 1) * Math.max(.8, (S.lvl ? 1.5 : 1.9) - e * .02),
     // time sitting before it starts biting
     life: Math.max(.45, (S.lvl ? .8 : 1.15) - e * .012),
     a: 1, ph: Math.random() * 9, face: 1, blood: 0, sc,
@@ -33,9 +33,7 @@ function spawnBeachBug(type, p) {
 }
 
 function spawnBeachWave(forced) {
-  const e = elapsed() + S.lvl * 10;
-  let type = forced || "norm";
-  if (!forced && S.playing && (S.endless || e > 3)) type = S.endless ? pickE() : pickT();
+  const type = forced || (S.playing ? pickE() : "norm");
   if (type === "pair") {
     // two side by side, flying in together
     const p = moshePoint(), b1 = spawnBeachBug("pair", p), b2 = spawnBeachBug("pair", { ...p, x: p.x + 18, y: p.y + 4 });

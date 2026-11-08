@@ -136,6 +136,10 @@ function sfx(kind, v) {
     } else if (kind === "qhit") {
       nz(n, "bandpass", 2200, 3, .42, .003, .16);
       tone(n, "sine", 130, 50, .5, .003, .14);
+    } else if (kind === "oops") {
+      // hit a trickster: a low "wrong!" buzzer
+      tone(n, "square", 220, 110, .22, .005, .35, 700);
+      tone(n + .12, "square", 180, 90, .2, .005, .35, 600);
     } else if (kind === "die") {
       wobble(tone(n, "sawtooth", 1100, 45, .3, .01, 1.35), n, 22, 80, 1.4);
     }

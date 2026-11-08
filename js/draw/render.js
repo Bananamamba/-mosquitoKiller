@@ -2,7 +2,7 @@
 // The order of the layers matters: later calls paint over earlier ones.
 
 function draw(now) {
-  const BEACH = STAGE === "beach";
+  const place = currentPlace(), BEACH = STAGE === "beach";
   const q = S.q, fightVis = q && q.phase === "fight" && q.vanish <= 0;
 
   // Everything except the HUD shakes with the screen.
@@ -11,7 +11,7 @@ function draw(now) {
     const m = S.shake * 45 * (Math.random() - .5);
     g.translate(Math.cos(S.shakeA) * m + (Math.random() - .5) * 3, Math.sin(S.shakeA) * m + (Math.random() - .5) * 3);
   }
-  drawRoom(now, BEACH);
+  place.drawRoom(now);
   if (fightVis || (q && q.phase === "dying")) {
     const mood = q.phase === "dying" || q.hurt > 0 ? "scare" : q.sting > .75 ? "wind" : "hover";
     queenFace(q.x, q.y, q.s, mood, now, q.phase === "dying" ? Math.max(0, 1 - q.t / 1.4) : 1);
@@ -21,7 +21,8 @@ function draw(now) {
     mosq(o.x, o.y, o.face, o.landed, now, o.ph, 1.5, "norm");
   }
   drawBugs(now);
-  if (!BEACH || (q && q.phase === "black")) drawDarkness(BEACH, q, fightVis);
+  drawTrick(now);
+  if (place.dark || (q && q.phase === "black")) drawDarkness(BEACH, q, fightVis);
   drawListening(now);
   if (BEACH && S.flash > 0) {
     g.fillStyle = `rgba(255,255,255,${.3 * Math.min(1, S.flash / .08)})`;
@@ -44,26 +45,18 @@ function draw(now) {
   }
   if (q) drawQueenOverlays(now, q, fightVis);
   drawParticles();
+  drawFog(now);
+  drawSlowTaps();
   drawSlaps();
   drawPops();
   g.restore();
+  // smooth fade into a new place
+  if (S.fade > 0) {
+    g.fillStyle = `rgba(5,7,14,${S.fade / CFG.run.fadeInSec})`;
+    g.fillRect(0, 0, W, H);
+  }
 
   drawHUD(now, BEACH, q);
-}
-
-// Background. On the beach Moshe is mirrored when he lies the other way,
-// and squeezed through a cosine during the roll-over animation.
-function drawRoom(now, BEACH) {
-  if (BEACH) {
-    beach(now);
-    g.save();
-    const sxf = S.flipT > 0 ? (S.flip ? -1 : 1) * Math.cos((1 - S.flipT / .5) * Math.PI) : (S.flip ? -1 : 1);
-    g.translate(W / 2, 0);
-    g.scale(sxf, 1);
-    g.translate(-W / 2, 0);
-    moshe(now);
-    g.restore();
-  } else bedroom();
 }
 
 // Live mosquitoes, plus the beach warnings (face circle, dig-in ring, biting ring).
@@ -125,14 +118,13 @@ function drawBugs(now) {
 
 // Darkness layer: fill the off-screen canvas, cut soft light holes, then paint it over the room.
 function drawDarkness(BEACH, q, fightVis) {
-  const darkEv = S.ev && S.ev.k === "dark";   // "Lights out" event
   d.globalCompositeOperation = "source-over";
   d.clearRect(0, 0, W, H);
   d.fillStyle = q && q.phase === "black" ? "#000"
     : S.awakeT > 0 ? "rgba(8,6,22,.25)"
-    : STAGE === "one" ? `rgba(2,3,8,${(S.lampT > 0 ? .3 : .985 - .05 * (S.perks.vision || 0)) * (1 - (S.lightsOn || 0))})`
+    : STAGE === "one" ? `rgba(2,3,8,${(S.lampT > 0 ? .3 : .985) * (1 - (S.lightsOn || 0))})`
     : BEACH ? "rgba(8,6,22,.72)"
-    : `rgba(3,4,10,${(darkEv ? 1 : .975 - .07 * (S.perks.vision || 0))})`;
+    : "rgba(3,4,10,.975)";
   d.fillRect(0, 0, W, H);
   d.globalCompositeOperation = "destination-out";
 
@@ -149,10 +141,11 @@ function drawDarkness(BEACH, q, fightVis) {
   // sun / window glow
   if (!(q && q.phase === "black")) {
     if (BEACH) hole(300, 90, 135, .55);
-    else if (!darkEv) hole(268, 116, 95, q ? .25 : .4);
+    else hole(268, 116, 95, q ? .25 : .4);
   }
   // the flashlight finds each mosquito
-  S.bugs.forEach(b => hole(b.x, b.y, 64 * b.a * (1 + .25 * (S.perks.vision || 0)) * (darkEv ? .55 : 1), b.a));
+  S.bugs.forEach(b => hole(b.x, b.y, 64 * b.a, b.a));
+  if (S.trick) hole(S.trick.x, S.trick.y, 60, .95);   // tricksters get their own light so they are seen
   if (S.slapLight) hole(S.slapLight.x, S.slapLight.y, 70, .95 * S.slapLight.t / .25);
   if (fightVis) hole(q.x, q.y, 125 * q.s, .8);
   if (q && q.phase === "dying") hole(q.x, q.y, 135 * q.s, .85 * Math.max(0, 1 - q.t / 1.4));

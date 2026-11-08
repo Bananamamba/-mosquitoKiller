@@ -9,33 +9,17 @@
   <div><div class="tag" id="tag">3:07 AM · Lights off</div><h1>Mosquito <span>Samurai</span></h1></div>
   <div class="wrap">
     <canvas id="cv" width="360" height="560"></canvas>
-    <!-- Overlay for menu and result screens. This first content is replaced by showMenu() on load,
-         so it is never actually seen (kept from the prototype). -->
-    <div class="overlay" id="ov">
-      <h2>Something's<br>buzzing.</h2>
-      <div class="steps">
-        <div><b>One run, night after night.</b> Win a night, pick an upgrade, keep going. Lose once and the run is over.</div>
-        <div><b>Bedroom:</b> tap mosquitoes when the light finds them. Survive 30 seconds. Too many bites and you're out.</div>
-        <div><b>Big Moshe:</b> keep him asleep for 40 seconds. Every miss wakes him a little. <b>Never slap his face.</b></div>
-        <div><b>The One:</b> a single mosquito in total darkness. Find it by sound. Three slaps.</div>
-      </div>
-      <div class="types">
-        <div><b>Coward</b> dodges your first slap</div>
-        <div><b>Faker</b> flickers twice, then lands</div>
-        <div><b>Pair</b> one slap, two kills</div>
-        <div><b>Golden</b> worth 5</div>
-      </div>
-      <p>Sound on.</p>
-      <div class="btns"><button type="button" data-run="1">Start the run</button></div>
-    </div>
+    <!-- Overlay for the menu and the end screen (filled by menu.js / run.js) -->
+    <div class="overlay" id="ov"></div>
   </div>
   <button type="button" id="lamp" class="lamp" hidden>Lamp flick · <span id="lampN">2</span></button>
-  <button type="button" id="spray" class="spray" hidden>Bug spray<span class="cd"></span></button>
-  <div class="hint" id="hint">5 hits in a row for x2 points, 10 for x3.</div>
+  <div class="hint" id="hint"></div>
 </div>
 
 <!-- Plain scripts (not modules) so the game also runs when opened straight from disk.
-     They share globals, so the order below matters: definitions first, main.js last. -->
+     They share globals, so the order below matters: definitions first, places after
+     the code they use, main.js last. A new place = one more line in the "places" group. -->
+<script src="js/config.js"></script>
 <script src="js/setup.js"></script>
 <script src="js/audio.js"></script>
 <script src="js/draw/scenery.js"></script>
@@ -43,6 +27,13 @@
 <script src="js/draw/sprites.js"></script>
 <script src="js/draw/render.js"></script>
 <script src="js/draw/hud.js"></script>
+<script src="js/run/places.js"></script>
+<script src="js/run/missions.js"></script>
+<script src="js/run/effects.js"></script>
+<script src="js/run/events.js"></script>
+<script src="js/run/tricksters.js"></script>
+<script src="js/run/run.js"></script>
+<script src="js/run/debug.js"></script>
 <script src="js/mosquitoes/types.js"></script>
 <script src="js/mosquitoes/bedroom-bugs.js"></script>
 <script src="js/mosquitoes/beach-bugs.js"></script>
@@ -50,11 +41,12 @@
 <script src="js/moshe.js"></script>
 <script src="js/the-one.js"></script>
 <script src="js/queen.js"></script>
-<script src="js/modes/stage.js"></script>
-<script src="js/modes/campaign.js"></script>
-<script src="js/modes/solo.js"></script>
-<script src="js/modes/endless.js"></script>
-<script src="js/legacy.js"></script>
+
+<!-- places, in the order the run visits them -->
+<script src="js/places/bedroom.js"></script>
+<script src="js/places/beach.js"></script>
+<script src="js/places/the-one.js"></script>
+
 <script src="js/menu.js"></script>
 <script src="js/input.js"></script>
 <script src="js/loop.js"></script>

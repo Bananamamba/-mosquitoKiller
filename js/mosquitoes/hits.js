@@ -13,36 +13,29 @@ function bite(b) {
     S.bumps.push({ x: b.hx, y: b.hy, r: 0, R: 6 + Math.random() * 3 });
     S.frown = 1.4;
     S.jig = .6;
-    wakeAdd((S.lvl ? .06 : .045) * Math.pow(.6, S.perks.thick || 0));
+    wakeAdd(S.lvl ? .06 : .045);
     pop(b.hx, b.hy - 44, Math.random() < .5 ? "OUCH!" : "*scratch*", "#ff8a8a", 15);
   } else pop(b.hx, b.hy - 40, "Bitten!", "#ff8a8a", 14);
 
   // half the time it comes back 2-4 s later as a fat, blood-filled one
   if (b.type !== "fat" && Math.random() < .5) S.fatQ.push({ t: 2 + Math.random() * 2 });
 
-  if (S.endless && STAGE !== "one" && b.type !== "mini") {
-    // endless: every escape is a strike, three = game over
-    S.strikes = (S.strikes || 0) + 1;
-    pop(W / 2, 110, "✕ ONE GOT AWAY", "#ff5a6e", 18);
-    S.shake = RM ? .05 : .15;
-    S.shakeA = 0;
-    if (S.strikes >= 3) { finish("escaped"); return; }
-  } else if (STAGE === "bed" && S.bites >= maxBites()) finish("bitten");
+  // bedroom: too many bites = a life lost
+  if (STAGE === "bed" && S.bites >= maxBites()) loseLife("bitten");
 }
 
-// quiet = no slap sound / hit-stop (used by the bug spray).
+// quiet = no slap sound / hit-stop (used for the second mosquito of a pair).
 function killBug(b, quiet) {
   b.dead = true;
   buzzStop(b, true);   // the buzz cuts off instantly: silence is the reward
   S.streak++;
   S.kills++;
-  feverAdd(b.type === "gold" ? .15 : .07);
-  if (S.perks.rage && S.streak % 10 === 0) { S.rage = 3; pop(W / 2, 150, "RAGE SLIPPER", "#ff8a3d", 22); }
+  feverAdd(b.type === "gold" ? CFG.fever.perGold : CFG.fever.perKill);
 
   // score: base + clutch bonus (hit in the last quarter before it bites), times all multipliers
   const m = mult(), base = POINTS[b.type] || 1;
   const clutch = b.state === "on" && b.st > b.life * .75;
-  const pts = (base + (clutch ? 1 : 0)) * m * (1 + (S.perks.dbl || 0)) * (S.feverT > 0 ? 3 : 1) * ((S.ev && S.ev.k === "heat") ? 2 : 1);
+  const pts = (base + (clutch ? 1 : 0)) * m * (S.feverT > 0 ? CFG.fever.points : 1) * (heatOn() ? CFG.events.heat.points : 1);
   const fat = b.type === "fat";
   S.score += pts;
   if (!quiet) {
@@ -56,6 +49,7 @@ function killBug(b, quiet) {
 
   // splat stays on the wall; a mosquito killed mid-air on the beach falls to the sand
   const air = b.beach && b.state === "fly";
+  missionEvent("kill", { bug: b, air });
   S.fx.push({
     kind: "splat", fall: air, vy: 0, gy: 478 + Math.random() * 50, x: b.x, y: b.y, life: 5, face: b.face, type: b.type, r: fat ? 14 : 8,
     dots: Array.from({ length: fat ? 16 : 8 }, () => [(Math.random() - .5) * (fat ? 60 : 34), (Math.random() - .5) * (fat ? 60 : 34), 1 + Math.random() * (fat ? 5 : 3.2)])
@@ -91,10 +85,6 @@ function killBug(b, quiet) {
     S.score += sb;
     pop(W / 2, 126, `${S.streak} IN A ROW! +${sb}`, "#ffc94d", 22);
     sfx("wave");
-  }
-  if (S.endless && S.streak % 25 === 0 && S.strikes > 0) {
-    S.strikes--;
-    pop(W / 2, 156, "Strike cleared!", "#9be59b", 16);
   }
 }
 
@@ -144,9 +134,10 @@ function dodge(b) {
   b.a = 0;
 }
 
-// A miss: streak back to 0 (and fever drains a bit in endless).
+// A miss: streak back to 0, and the fever meter drains a bit.
 function breakStreak() {
-  if (S.endless && !(S.feverT > 0)) S.fever = Math.max(0, (S.fever || 0) - .25);
+  if (!(S.feverT > 0)) S.fever = Math.max(0, (S.fever || 0) - CFG.fever.perMiss);
+  missionEvent("miss");
   if (S.streak >= 5) pop(W / 2, 96, "Streak lost", "#93a0c4", 15);
   S.streak = 0;
 }

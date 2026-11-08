@@ -70,18 +70,6 @@ h1 span { color: var(--blood); }
 .overlay p.small { font-size: .82rem; }
 
 /* ---------- overlay content ---------- */
-.steps { display: grid; gap: 7px; text-align: left; max-width: 31ch; font-size: .9rem; line-height: 1.35; color: var(--muted); }
-.steps b { color: var(--steel); }
-.types {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 6px 12px;
-  text-align: left;
-  font-size: .82rem;
-  color: var(--muted);
-  max-width: 31ch;
-}
-.types b { color: var(--steel); }
 .big { font-family: var(--display); font-size: 3.4rem; color: var(--lamp); line-height: 1; font-variant-numeric: tabular-nums; }
 .rank { font-weight: 800; font-size: 1.15rem; }
 .hint { font-size: .9rem; color: var(--muted); text-align: center; }
@@ -105,71 +93,6 @@ button.beach:active { box-shadow: 0 2px 0 #1b6a61; }
 button:focus-visible { outline: 3px solid var(--lamp); outline-offset: 3px; }
 button.lamp { background: var(--lamp); color: var(--ink); box-shadow: 0 5px 0 #9c7a1f; }
 button.lamp:active { box-shadow: 0 2px 0 #9c7a1f; }
-
-/* ---------- upgrade card backs/faces (legacy: cards are no longer offered) ---------- */
-.backs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; width: 100%; max-width: 330px; }
-button.back {
-  height: 130px;
-  display: grid;
-  place-items: center;
-  align-content: center;
-  gap: 6px;
-  border-radius: 12px;
-  border: 2px solid rgba(255, 255, 255, .25);
-  box-shadow: 0 5px 0 #0b0f1d;
-  padding: 6px;
-}
-button.back b { font-family: var(--display); font-size: 2rem; font-weight: 400; color: #fff; }
-button.back span {
-  font-family: var(--body);
-  font-weight: 800;
-  font-size: .78rem;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, .9);
-}
-.back.g, .face.g { background: repeating-linear-gradient(45deg, #2f8f5b 0 8px, #2a7f51 8px 16px); }
-.back.p, .face.p { background: repeating-linear-gradient(45deg, #6b4bb8 0 8px, #5d40a3 8px 16px); }
-.back.r, .face.r { background: repeating-linear-gradient(45deg, #b8323f 0 8px, #a32b37 8px 16px); }
-.face {
-  border-radius: 12px;
-  padding: 10px 8px;
-  min-height: 130px;
-  display: grid;
-  align-content: start;
-  gap: 6px;
-  text-align: left;
-  opacity: .4;
-  border: 2px solid transparent;
-}
-.face.mine { opacity: 1; border-color: var(--lamp); }
-.face b { font-family: var(--display); font-size: .7rem; font-weight: 400; color: #fff; line-height: 1.25; }
-.face span { font-size: .74rem; color: rgba(255, 255, 255, .92); line-height: 1.3; }
-
-/* ---------- menu cards (room / mode picker) ---------- */
-.cards { display: grid; gap: 10px; width: 100%; max-width: 290px; }
-button.card {
-  display: grid;
-  gap: 3px;
-  text-align: left;
-  background: #1c2440;
-  color: var(--steel);
-  border: 2px solid #3a4677;
-  border-radius: 14px;
-  padding: 12px 14px;
-  box-shadow: 0 4px 0 #0b0f1d;
-  font-family: var(--body);
-}
-button.card:hover { border-color: var(--lamp); }
-button.card:active { box-shadow: 0 1px 0 #0b0f1d; }
-.card b { font-family: var(--display); font-size: .88rem; color: var(--lamp); font-weight: 400; }
-.card span { font-size: .86rem; color: var(--muted); line-height: 1.3; }
-.card i { font-style: normal; font-size: .75rem; color: #6fd3c4; }
-
-/* ---------- bug spray button (legacy perk) with cooldown shade ---------- */
-button.spray { position: relative; overflow: hidden; background: #3a8f4a; box-shadow: 0 5px 0 #1f5a2a; }
-button.spray:active { box-shadow: 0 2px 0 #1f5a2a; }
-.spray .cd { position: absolute; inset: 0 auto 0 0; width: var(--cd, 0%); background: rgba(0, 0, 0, .5); pointer-events: none; }
 
 @media (prefers-reduced-motion: reduce) {
   button:active { transform: none; }

@@ -1,12 +1,7 @@
-// Mosquito types: which ones unlock in endless, and how the next type is picked.
+// Mosquito types: their announcement texts, and how the next type is picked.
+// Which types a place has (and in what order they join) is set in the place file (types: [...]).
 
-// Endless: order in which new types join, one per tier.
-const ORDER = {
-  bed: ["coward", "pair", "faker", "armored", "splitter"],
-  beach: ["coward", "pair", "faker", "stuck", "armored", "splitter"]
-};
-
-// On-screen announcement per type. Text before " · " is the short title.
+// Announcement per type (shown once ever). Text before " · " is the short title.
 const TDESC = {
   coward: "Cowards join · they dodge your first slap",
   pair: "Pairs join · one slap, two kills",
@@ -16,23 +11,19 @@ const TDESC = {
   splitter: "Splitters join · kill one, three small ones fly out"
 };
 
-// Endless pick: weighted random among unlocked types. The newest type is a bit more common.
-// A freshly unlocked type (S.intro) is always shown first; Golden hour = gold only.
+// Weighted random among the unlocked types. The newest type is a bit more common.
+// A freshly unlocked type (S.intro) always comes first; golden hour = gold only;
+// the active mission can add weights (e.g. more gold, or belly stuckers).
 function pickE() {
   if (S.ev && S.ev.k === "gold") return "gold";
   if (S.intro) { const t = S.intro; S.intro = null; return t; }
-  const un = ORDER[STAGE].slice(0, S.tier);
-  const w = { norm: .45, gold: .06 * (1 + (S.perks.gold || 0)) };
+  const un = (currentPlace().types || []).slice(0, S.unlocked);
+  const w = { norm: .45, gold: .06 };
   un.forEach((k, i) => w[k] = i === un.length - 1 ? .22 : .13);
+  Object.assign(w, missionWeights());
   let tot = 0;
   for (const k in w) tot += w[k];
   let r = Math.random() * tot;
   for (const k in w) { r -= w[k]; if (r <= 0) return k; }
   return "norm";
-}
-
-// Campaign / single room pick: fixed chances (gold ~7%, coward 12%, faker 10%, pair 10%).
-function pickT() {
-  const gc = .07 * (1 + (S.perks.gold || 0)), r = Math.random();
-  return r < gc ? "gold" : r < gc + .12 ? "coward" : r < gc + .22 ? "faker" : r < gc + .32 ? "pair" : "norm";
 }

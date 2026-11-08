@@ -2,14 +2,15 @@
 // while "HER STING" fills. If it fills, she lunges and laughs = loss.
 // Phases: black → scare → shrink → fight → (dying | lunge → laugh).
 
-// Hit points: weaker on the first loop; in endless, +10 per previous visit.
-const qhp = () => (S.lvl ? QHP + S.lvl * 10 : 30) + (S.endless ? Math.max(0, (S.queenCount || 1) - 1) * 10 : 0);
+// Hit points: weaker on the first loop, +10 per loop after that.
+const qhp = () => S.lvl ? QHP + S.lvl * 10 : 30;
 
 function queenStart() {
   S.bugs.forEach(b => buzzStop(b, true));
   S.bugs = [];
   S.slaps = [];
   S.fatQ = [];
+  S.trick = null;
   S.q = {
     phase: "black", t: 0, ft: 0, x: W / 2, y: 260, s: 2.6, hp: qhp(), max: qhp(),
     sting: 0, hurt: 0, vanish: 0, popT: 0,
@@ -62,7 +63,7 @@ function updQueen(dt) {
     q.y += (260 - q.y) * k * .3;
     if (k >= 1) { q.phase = "laugh"; q.t = 0; sfx("laugh"); S.shake = RM ? .1 : .5; }
   } else if (q.phase === "laugh") {
-    if (q.t > 2.6) { finish("stung"); return; }
+    if (q.t > 2.6) { S.q = null; droneStop(q); loseLife("stung"); return; }
   } else if (q.phase === "dying") {
     if (q.t > 1.4) {
       droneStop(q);

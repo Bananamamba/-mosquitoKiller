@@ -25,9 +25,8 @@ function newBug(type, p, life) {
 function spawnWave() {
   const e = elapsed() + S.lvl * 10;
   // how long each mosquito stays: shorter as time and loops go on
-  const base = Math.max(.6, (S.lvl ? 1.3 : 1.6) - e * .022) * Math.pow(1.2, S.perks.slow || 0) * ((S.ev && S.ev.k === "heat") ? .7 : 1);
-  let type = "norm";
-  if (S.playing && (S.endless || e > (S.lvl ? 3 : 8))) type = S.endless ? pickE() : pickT();
+  const base = Math.max(.6, (S.lvl ? 1.3 : 1.6) - e * .022) * (heatOn() ? .7 : 1);
+  const type = S.playing ? pickE() : "norm";
   const p = freePoint();
   if (type === "pair") {
     const b1 = newBug("pair", p, base * 1.1);

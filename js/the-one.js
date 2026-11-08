@@ -2,16 +2,18 @@
 // release to slap. When the buzz stops, it has landed. Limited slaps and lamp flicks.
 
 function oneStart() {
+  const c = CFG.places.one;
   oneSpawn();
-  S.slapsLeft = S.lvl ? 3 : 4;
+  S.slapsLeft = byLoop(c.slaps, S.lvl);
   S.oneBites = 0;
-  S.lamps = (S.lvl ? 2 : 3) + (S.perks.vision || 0);
+  S.lamps = byLoop(c.lamps, S.lvl);
+  S.dur = S.left = c.seconds;
   document.getElementById("lampN").textContent = S.lamps;
 }
 
-// In endless, each catch makes the next one smarter: crawls after landing (1), runs from the lamp (2), faster (3+).
+// Each loop it gets smarter: crawls after landing (loop 2), runs from the lamp (loop 3), faster (loop 4+).
 function oneSpawn() {
-  const c = S.endless ? S.catches : 0;
+  const c = S.lvl;
   S.one = {
     crawl: c >= 1, lampFlee: c >= 2,
     x: 40, y: 120, vx: 0, vy: 0, tx: 200, ty: 200,
@@ -19,7 +21,7 @@ function oneSpawn() {
     nextLand: 3 + Math.random() * 2,           // seconds until it looks for a place to land
     diveT: (S.lvl ? 7 : 11) + Math.random() * 3, // seconds until it dives at you to bite
     diving: false, flee: 0,
-    sp: (S.lvl ? 95 : 75) * Math.pow(1.15, S.lvl) * Math.pow(1.1, Math.max(0, c - 2)) * Math.pow(.85, S.perks.slow || 0),
+    sp: (S.lvl ? 95 : 75) * Math.pow(1.15, S.lvl) * Math.pow(1.1, Math.max(0, c - 2)),
     avoid: [],   // places you slapped recently; it stays away from them
     dead: false, winT: 0, ph: 0, face: 1, near: 0
   };
@@ -48,14 +50,11 @@ function updOne(dt) {
   if (!o) return;
   o.ph += dt;
 
-  // caught: lights slowly come on, then win (or next catch in endless)
+  // caught: lights slowly come on, then on to the next place
   if (o.dead) {
     o.winT -= dt;
     S.lightsOn = Math.min(1, S.lightsOn + dt * 1.2);
-    if (o.winT <= 0) {
-      if (S.endless) oneNext();
-      else stageWon();
-    }
+    if (o.winT <= 0) placeCleared();
     return;
   }
 
@@ -125,31 +124,13 @@ function updOne(dt) {
   }
 }
 
-// Endless: next mosquito. Rewards: one bite healed, +2 slaps (max 5), +1 lamp, clock reset.
-function oneNext() {
-  S.catches++;
-  S.tier = S.catches;
-  if (S.one) buzzStop(S.one, true);
-  S.lightsOn = 0;
-  S.oneBites = Math.max(0, S.oneBites - 1);
-  S.slapsLeft = Math.min(5, S.slapsLeft + 2);
-  S.lamps++;
-  document.getElementById("lampN").textContent = S.lamps;
-  S.left = S.dur;
-  oneSpawn();
-  const sub = S.catches === 1 ? "The next one crawls after it lands"
-    : S.catches === 2 ? "The next one runs from the lamp"
-    : "The next one is faster";
-  banner(`CATCH ${S.catches}`, sub, 1.8);
-}
-
 function oneBitten() {
   if (!S.playing) return;
   S.oneBites++;
   sfx("bite");
   S.bitFlash = .5;
   pop(180, 420, "BZZT. Bitten!", "#ff8a8a", 16);
-  if (S.oneBites >= oneMax()) finish("oneBitten");
+  if (S.oneBites >= oneMax()) loseLife("oneBitten");
 }
 
 // Slap where the finger was released. Landed = easier to hit; mid-air = more points.
@@ -158,7 +139,8 @@ function oneSlap(p) {
   if (!o || o.dead || !S.playing || S.banner) return;
   S.slaps.push({ x: p.x, y: p.y, rot: -.55 + Math.random() * .4, t: 0 });
   S.slapLight = { x: p.x, y: p.y, t: .25 };   // the slap briefly lights the spot
-  const r = Math.max(18, (o.landed ? 34 : 26) + (S.lvl ? 0 : 8) + 10 * (S.perks.wide || 0));
+  const r = (o.landed ? 34 : 26) + (S.lvl ? 0 : 8);
+  missionEvent("slap");
   if (Math.hypot(o.x - p.x, o.y - p.y) < r) {
     // got it
     o.dead = true;
@@ -169,8 +151,9 @@ function oneSlap(p) {
     S.stop = .16;
     S.shake = RM ? .05 : .3;
     S.shakeA = 0;
-    const pts = (o.landed ? 40 : 60) * (1 + (S.perks.dbl || 0));
+    const pts = o.landed ? 40 : 60;
     S.score += pts;
+    missionEvent("catch", { air: !o.landed });
     S.fx.push({
       kind: "splat", x: o.x, y: o.y, life: 9, face: o.face, type: "norm", r: 9,
       dots: Array.from({ length: 12 }, () => [(Math.random() - .5) * 44, (Math.random() - .5) * 44, 1 + Math.random() * 3.5])
@@ -194,7 +177,8 @@ function oneSlap(p) {
     o.vy = Math.sin(an) * 300;
     oneTarget();
     pop(p.x, p.y - 50, S.slapsLeft ? ["Missed.", "It's laughing at you.", "Bzz-ha."][Math.random() * 3 | 0] : "Out of slaps.", "#93a0c4", 16);
-    if (S.slapsLeft <= 0) setTimeout(() => { if (S.playing && STAGE === "one") finish("noslap"); }, 900);
+    // short pause so the miss is seen before the life is lost
+    if (S.slapsLeft <= 0) setTimeout(() => { if (S.playing && STAGE === "one" && S.slapsLeft <= 0) loseLife("noslap"); }, 900);
   }
 }
 
@@ -204,6 +188,7 @@ function lampFlick() {
   S.lamps--;
   S.lampT = .45;
   document.getElementById("lampN").textContent = S.lamps;
+  missionEvent("lamp");
   if (S.one && S.one.lampFlee && S.one.landed) {
     const o = S.one;
     o.landed = false;

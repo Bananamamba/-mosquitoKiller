@@ -1,4 +1,4 @@
-// Input: taps on the canvas, hold-to-listen (The One), hold-to-pull (belly stucker), lamp button/key.
+// Input: taps on the canvas, hold-to-pull (belly stucker), place-specific touch (The One), lamp button/key.
 
 // Screen position → canvas units.
 function pt(e) {
@@ -8,15 +8,9 @@ function pt(e) {
 
 cv.addEventListener("pointerdown", e => {
   e.preventDefault();
-  if (!S.playing || S.awakeT > 0 || S.paused) return;
-  const p = pt(e);
-  // The One: pressing = listening; the slap happens on release
-  if (STAGE === "one") {
-    try { cv.setPointerCapture(e.pointerId); } catch (err) {}
-    S.hold = true;
-    S.ear = p;
-    return;
-  }
+  if (!S.playing || S.awakeT > 0 || S.paused || S.banner) return;
+  const p = pt(e), place = currentPlace();
+  if (place.onPress && place.onPress(p, e)) return;
   // pressing on a belly stucker starts pulling it out (must hold 0.5 s, see loop.js)
   const sk = S.bugs.find(b => !b.dead && b.state === "stuck" && Math.hypot(b.hx - p.x, b.hy - p.y) < 44);
   if (sk && !S.q) {
@@ -24,11 +18,18 @@ cv.addEventListener("pointerdown", e => {
     S.pull = { b: sk, t: 0 };
     return;
   }
+  // slow slipper effect: the slap lands a moment later
+  if (effectOn("slowSlipper")) {
+    const delay = CFG.effects.slowSlipper.delay;
+    S.slowTaps.push({ p, t: delay, max: delay });
+    return;
+  }
   tap(p);
 });
 
 cv.addEventListener("pointermove", e => {
-  if (STAGE === "one" && S.hold) S.ear = pt(e);
+  const place = currentPlace();
+  if (place.onMove) place.onMove(pt(e));
   // sliding the finger away cancels the pull
   if (S.pull) {
     const p = pt(e);
@@ -37,7 +38,8 @@ cv.addEventListener("pointermove", e => {
 });
 
 cv.addEventListener("pointerup", () => {
-  if (STAGE === "one" && S.hold) { S.hold = false; oneSlap(S.ear); }
+  const place = currentPlace();
+  if (place.onRelease) place.onRelease();
   if (S.pull) {
     if (!S.pull.b.dead) pop(S.pull.b.hx, S.pull.b.hy - 46, "Hold it longer!", "#ffb0a0", 13);
     S.pull = null;
@@ -46,7 +48,7 @@ cv.addEventListener("pointerup", () => {
 
 cv.addEventListener("pointercancel", () => { S.hold = false; });
 
-// A slap at p (bedroom / beach). Priority: Queen fight → rage slipper → nearest mosquito.
+// A slap at p. Priority: Queen fight → trickster (if it is the closest thing) → nearest mosquito.
 function tap(p) {
   const q = S.q, rot = -.55 + Math.random() * .4;
 
@@ -59,25 +61,22 @@ function tap(p) {
     return;
   }
 
-  // rage slipper (legacy perk): one big slap kills everything nearby
-  if (S.rage > 0) {
-    const hits = S.bugs.filter(b => !b.dead && b.state !== "out" && b.state !== "fake" && Math.hypot(b.x - p.x, b.y - p.y) < 85);
-    S.slaps.push({ x: p.x, y: p.y, rot, t: 0, big: 1 });
-    if (hits.length) {
-      const onFace = hits.some(b => b.beach && b.state !== "fly" && zoneAt(b.hx, b.hy) === "face");
-      hits.forEach(b => killBug(b));
-      if (onFace) wakeAdd(.3);
-    } else { sfx("whiff"); mosheSlap(p, false); }
-    return;
-  }
-
   // find the nearest mosquito within reach (fever = bigger slipper)
-  let best = null, bd = Math.max(22, 42 + 12 * (S.perks.wide || 0)) + (S.feverT > 0 ? 20 : 0);
+  let best = null, bd = 42 + (S.feverT > 0 ? 20 : 0);
   S.bugs.forEach(b => {
     if (b.dead || (b.state === "out" && b.a < .5)) return;
     const dd = Math.hypot(b.x - p.x, b.y - p.y);
     if (dd < bd) { bd = dd; best = b; }
   });
+
+  // hit a trickster only if it is closer than any mosquito (fair when they overlap)
+  const td = trickDist(p);
+  if (td < CFG.tricksters.hitRadius && (!best || td < bd)) {
+    S.slaps.push({ x: S.trick.x, y: S.trick.y, rot, t: 0 });
+    trickHit();
+    return;
+  }
+
   const at = best || p;   // the slipper snaps onto the mosquito it hits
   S.slaps.push({ x: at.x, y: at.y, rot, t: 0, big: S.feverT > 0 ? 1 : 0 });
 
@@ -125,7 +124,7 @@ function tap(p) {
     S.score += 2 * m;
     pop(best.x, best.y - 104, "DOUBLE +" + 2 * m, "#ffc94d", 18);
   }
-  if (!(best.beach && best.state === "fly")) mosheSlap(best.beach ? { x: best.hx, y: best.hy } : at, true);
+  if (!midAir) mosheSlap(best.beach ? { x: best.hx, y: best.hy } : at, true);
 }
 
 lampBtn.addEventListener("pointerdown", e => { e.preventDefault(); lampFlick(); });
