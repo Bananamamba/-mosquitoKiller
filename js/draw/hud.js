@@ -1,6 +1,6 @@
-// HUD: drawn on top of everything and does not shake.
-// Layout from the top: top bar (score · lives · progress), mission line, fever bar, timers row.
-// Bottom: Moshe's wake meter (beach) or bites / slaps. Banners in the middle.
+// HUD: drawn on top of everything and does not shake. Kept small so it doesn't hide the game:
+// top bar (score · lives · goal, with thin progress and fever lines under it);
+// bottom bar (Moshe's wake meter, or bites / slaps) with the effect timers. Banners in the middle.
 
 const HUD_FONT = "'Rubik Mono One', sans-serif";
 
@@ -10,11 +10,7 @@ function drawHUD(now, BEACH, q) {
     const queenBars = q && (q.phase === "fight" || q.phase === "dying");
     drawTopBar(BEACH);
     if (queenBars) drawQueenBars(q);
-    else {
-      drawMissionLine();
-      if (currentPlace().fever) drawFeverBar();
-      drawTimersRow();
-    }
+    else if (currentPlace().fever) drawFeverLine();
     drawBottomBar(BEACH, now);
     for (let i = 0; i < CFG.run.lives; i++) headIcon(W / 2 - 22 + i * 22, 20, i < S.lives);
   }
@@ -61,60 +57,44 @@ function drawTopBar(BEACH) {
   if (place.threshold) {
     g.fillStyle = "#e8eef7";
     g.fillText(`${Math.max(0, got)}/${S.threshold}`, W - 12, 26);
+    g.font = "8px " + HUD_FONT;
+    g.fillStyle = "#93a0c4";
+    g.fillText("GOAL", W - 12, 11);
   } else {
     g.fillStyle = k < .25 ? "#ff8a8a" : "#e8eef7";
     g.fillText(`${S.left.toFixed(0)}s`, W - 12, 26);
   }
 }
 
-// "MISSION Squash 20 · 7/20" and the run's coins.
-function drawMissionLine() {
-  const m = S.mission;
-  if (!m) return;
-  g.fillStyle = "rgba(7,10,20,.7)";
-  g.fillRect(0, 40, W, 18);
-  g.font = "9px " + HUD_FONT;
-  g.textAlign = "left";
-  g.fillStyle = "#93a0c4";
-  g.fillText("MISSION", 8, 53);
-  g.font = "10px " + HUD_FONT;
-  g.fillStyle = m.done ? "#9be59b" : m.failed ? "#6b7491" : "#e8eef7";
-  g.fillText(missionHUD(), 62, 53);
-  g.textAlign = "right";
-  g.fillStyle = "#ffc94d";
-  g.fillText("● " + S.runCoins, W - 10, 53);
-}
-
-// Fever meter under the mission line.
-function drawFeverBar() {
+// Fever: a thin pink line right under the top bar (gold while fever is on).
+function drawFeverLine() {
   const fv = S.feverT > 0 ? S.feverT / CFG.fever.sec : (S.fever || 0);
-  g.fillStyle = "rgba(7,10,20,.6)";
-  g.fillRect(0, 58, W, 12);
-  g.fillStyle = "#3a1036";
-  g.fillRect(64, 61, W - 76, 6);
+  if (fv <= 0) return;
   g.fillStyle = S.feverT > 0 ? "#ffc94d" : "#ff6ad5";
-  g.fillRect(64, 61, (W - 76) * fv, 6);
-  g.font = "8px " + HUD_FONT;
-  g.textAlign = "left";
-  g.fillStyle = "#ff9ae6";
-  g.fillText("FEVER", 10, 67);
+  g.fillRect(0, 40, W * fv, 3);
 }
 
-// Everything with a countdown: the running event and active effects, e.g. "BAD LUCK 7s".
-function drawTimersRow() {
+// Running event and active effects, short: e.g. "BAD LUCK 7 · GOLDEN HOUR 3".
+function statusText() {
   const items = [];
   if (S.ev) items.push([EVTXT[S.ev.k][0].split("!")[0], EVTXT[S.ev.k][1], S.ev.t]);
   for (const id in S.effects) items.push([EFFECTS[id].label, EFFECTS[id].color, S.effects[id].t]);
+  return items;
+}
+
+// Draws the status items centered at (cx, y).
+function drawStatus(cx, y) {
+  const items = statusText();
   if (!items.length) return;
-  g.font = "11px " + HUD_FONT;
-  g.textAlign = "center";
-  items.forEach(([label, color, t], i) => {
-    const y = 86 + i * 16;
-    g.lineWidth = 3;
-    g.strokeStyle = "#070a14";
-    g.strokeText(`${label} ${Math.ceil(t)}s`, W / 2, y);
+  g.font = "9px " + HUD_FONT;
+  const parts = items.map(([label, color, t]) => [`${label} ${Math.ceil(t)}`, color]);
+  const total = parts.reduce((sum, [txt]) => sum + g.measureText(txt).width, 0) + 14 * (parts.length - 1);
+  let x = cx - total / 2;
+  g.textAlign = "left";
+  parts.forEach(([txt, color]) => {
     g.fillStyle = color;
-    g.fillText(`${label} ${Math.ceil(t)}s`, W / 2, y);
+    g.fillText(txt, x, y);
+    x += g.measureText(txt).width + 14;
   });
 }
 
@@ -153,12 +133,14 @@ function drawBottomBar(BEACH, now) {
   const bites = ONE ? S.oneBites : S.bites, max = ONE ? oneMax() : maxBites();
   g.fillStyle = bites >= max - 1 ? "#ff5a6e" : "#ff8a8a";
   g.fillText(`BITES ${bites}/${max}`, W - 12, H - 10);
+  drawStatus(W / 2, H - 10);
 }
 
 function drawWakeMeter(now) {
-  const x = 84, w = W - 96, y = H - 30, h = 18, danger = S.wake > .65;
+  const x = 84, w = W - 96, y = H - 30, h = 18, danger = S.wake > .65, status = statusText().length;
   g.fillStyle = "rgba(7,10,20,.85)";
-  g.fillRect(0, H - 40, W, 40);
+  g.fillRect(0, H - (status ? 52 : 40), W, status ? 52 : 40);
+  if (status) drawStatus(W / 2, H - 38);
   g.font = "12px " + HUD_FONT;
   g.textAlign = "left";
   g.fillStyle = "#ffe0c0";
@@ -180,10 +162,13 @@ function drawWakeMeter(now) {
 }
 
 // Big centered title that fades in and out. With an icon: a picture above the text.
+// b is a text, or a list of [text, color] lines (e.g. goal + mission).
 function drawBanner(now) {
   const bn = S.banner, a = Math.min(1, bn.t / .25, (bn.max - bn.t) / .2 + .2);
-  const lines = wrapText(bn.b, W - 40, "700 15px Rubik, sans-serif");
-  const top = bn.icon ? 170 : 200, hgt = (bn.icon ? 110 : 66) + lines.length * 20;
+  const font = "700 17px Rubik, sans-serif";
+  const lines = (Array.isArray(bn.b) ? bn.b : [[bn.b, "#e8eef7"]])
+    .flatMap(([txt, col]) => wrapText(txt, W - 36, font).map(ln => [ln, col]));
+  const top = bn.icon ? 160 : 190, hgt = (bn.icon ? 116 : 72) + lines.length * 23;
   g.save();
   g.globalAlpha = Math.max(0, a);
   g.fillStyle = "rgba(7,10,20,.7)";
@@ -195,15 +180,14 @@ function drawBanner(now) {
     y = top + 92;
   }
   g.textAlign = "center";
-  g.font = "26px " + HUD_FONT;
+  g.font = "28px " + HUD_FONT;
   g.lineWidth = 6;
   g.strokeStyle = "#070a14";
   g.strokeText(bn.a, W / 2, y);
   g.fillStyle = "#ffc94d";
   g.fillText(bn.a, W / 2, y);
-  g.font = "700 15px Rubik, sans-serif";
-  g.fillStyle = "#e8eef7";
-  lines.forEach((ln, i) => g.fillText(ln, W / 2, y + 28 + i * 20));
+  g.font = font;
+  lines.forEach(([ln, col], i) => { g.fillStyle = col; g.fillText(ln, W / 2, y + 32 + i * 23); });
   g.restore();
 }
 

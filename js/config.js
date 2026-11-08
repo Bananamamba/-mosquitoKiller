@@ -47,7 +47,11 @@ const CFG = {
 
   // Decoy bugs that must NOT be hit. At most one on screen.
   tricksters: {
-    firstAfter: 20,                  // seconds of play in the run before the first one
+    minPerLoop: 2,                   // at least this many per loop of the run
+    dueAfter: [6, 14],               // ...when owed, the first comes this many seconds into the visit
+    dueGap: [6, 10],                 // ...and the next owed one this soon after
+    stay: [1.8, 2.6],                // seconds it hovers / sits before flying off
+    firstAfter: 20,                  // seconds of play in the run before the first one (if none is owed)
     gapStart: [28, 40],              // seconds between them at the start of the run (min, max)
     gapEnd: [14, 20],                // ...and after rampPlaces places
     rampPlaces: 9,

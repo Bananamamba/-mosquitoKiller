@@ -11,6 +11,8 @@ registerPlace({
   types: ["coward", "pair", "faker", "armored", "splitter"],
   tricksters: true, events: true, fever: true,
   dark: true,
+  trickArrive: "pop",            // decoys pop up in the light like the mosquitoes
+  trickSpot: () => freePoint(),
 
   enter(loop) {
     const c = CFG.queen;

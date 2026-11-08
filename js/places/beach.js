@@ -11,6 +11,13 @@ registerPlace({
   types: ["coward", "pair", "faker", "stuck", "armored", "splitter"],
   tricksters: true, events: true, fever: true,
   dark: false,
+  // decoys fly in and sit on Moshe like the mosquitoes (never on his face)
+  trickArrive: "fly",
+  trickSpot() {
+    let p;
+    do p = moshePoint(); while (p.zone === "face");
+    return { x: p.x - Math.cos(p.ang) * 16, y: p.y - Math.sin(p.ang) * 16 };
+  },
 
   enter() {},
   // he rolls over now and then, and snores

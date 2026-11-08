@@ -17,29 +17,36 @@
 }
 [hidden] { display: none !important; }
 html, body { height: 100%; }
+body { height: 100dvh; }
 body {
   background: radial-gradient(110% 70% at 50% 0%, var(--night-2), var(--night) 70%);
   color: var(--steel);
   font-family: var(--body);
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 14px;
+  padding-left: max(8px, env(safe-area-inset-left, 0px));
+  padding-right: max(8px, env(safe-area-inset-right, 0px));
+  padding-block: max(8px, env(safe-area-inset-top, 0px)) max(8px, env(safe-area-inset-bottom, 0px));
+  margin: 0;
   display: flex;
   justify-content: center;
   box-sizing: border-box;
+  overflow: hidden;
+  overscroll-behavior: none;   /* no pull-to-refresh while playing */
+  touch-action: manipulation;  /* no double-tap zoom */
   -webkit-user-select: none;
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 /* ---------- header ---------- */
-.stage { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; }
+.stage { width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 10px; }
+/* while playing, the title and the hint are hidden so the game gets the whole screen */
+body.playing .head, body.playing .hint { display: none; }
 h1 { font-family: var(--display); font-size: 1.75rem; line-height: 1; margin: 0; letter-spacing: -.5px; }
 h1 span { color: var(--blood); }
 .tag { font-weight: 700; font-size: .78rem; letter-spacing: .14em; text-transform: uppercase; color: var(--lamp); }
 
 /* ---------- canvas & overlay ---------- */
-.wrap { position: relative; }
+.wrap { position: relative; align-self: center; width: 100%; }   /* width is set by layout.js */
 #cv {
   display: block;
   width: 100%;

@@ -8,6 +8,7 @@ registerPlace({
   tag: "3:12 AM · Just one mosquito",
   hint: "Hold to listen with your hand. Let go to slap. When the buzz stops, it has landed.",
   threshold: false,
+  goal: "GOAL: catch it before sunrise",
   missions: ["slapsN", "noLamp", "airCatch"],
   types: [],
   tricksters: false, events: false, fever: false,

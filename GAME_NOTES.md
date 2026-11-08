@@ -34,7 +34,12 @@ The run itself does not change. A new place gets tricksters, events and fever by
 ## The run (the only mode)
 - One continuous run through the places in order: Bedroom → Big Moshe → The One → back to the start.
   Each loop is harder (thresholds, missions, mosquito speed). The first loop is eased.
-- Entering a place: 2-second banner with the mission, smooth fade, no in-between screen.
+- Entering a place: 2-second big banner with the GOAL (what moves you on) and the BONUS mission
+  (+coins), then it disappears. No mission line stays on screen; a short "Bonus 10/20" message at
+  halfway and "BONUS DONE ✓" at the end. Smooth fade, no in-between screen.
+- Screen: the game fills the phone screen without zooming (viewport tag + `js/layout.js`). While playing,
+  the title and hint are hidden. HUD is kept small: top bar (score, lives, GOAL x/y, thin progress and
+  fever lines); event/effect timers sit in the bottom bar, not over the game.
 - Bedroom and beach have a **score threshold** (points scored inside that place). Reaching it moves on,
   even if the mission is not done. The One has no threshold: catching it moves on.
 - **Threshold by time**: an average player should reach it in 35–45 s on the first loop; +10% time each loop.
@@ -64,12 +69,16 @@ The run itself does not change. A new place gets tricksters, events and fever by
 - The One: catch it with at most X slaps · without the lamp · in mid-air (not while it sits).
 
 ## Tricksters (decoy bugs: don't hit them)
-- Every place except The One. At most one on screen. Rare at first (every 28–40 s), more often as the run
+- Every place except The One. At most one on screen. At least 2 in every loop of the run (owed ones
+  come early in the remaining places); otherwise rare at first (every 28–40 s), more often as the run
   goes on (every 14–20 s after 9 places). None during the fog or the Queen.
-- Moth (pale, big wings, flutters): bad luck, more mosquitoes for 10 s.
-- Spider (black, 8 legs, drops on a thread): rain and fog for 8 s, and you lose some coins.
-- Cricket (green, hops along the floor): you lose a life (and stay in the place).
-- Bee (yellow-black stripes, zigzags): slow slipper for 6 s (the slap lands 0.35 s after the tap).
+- They LOOK different from mosquitoes (color, shape) but MOVE like the place's mosquitoes, to confuse:
+  bedroom = pop up in the flashlight and hover; beach = fly in, sit on Moshe (never his face), fly off.
+  A new place sets `trickArrive` ("pop" / "fly") and `trickSpot()`.
+- Moth (pale, big wings): bad luck, more mosquitoes for 10 s.
+- Spider (black, 8 legs): rain and fog for 8 s, and you lose some coins.
+- Cricket (green, long jumping leg): you lose a life (and stay in the place).
+- Bee (yellow-black stripes): slow slipper for 6 s (the slap lands 0.35 s after the tap).
 - First time a player ever sees each one: a short banner with its picture and what it does (localStorage).
 - A tap hits the trickster only if it is closer than any mosquito.
 

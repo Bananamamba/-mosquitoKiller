@@ -20,6 +20,7 @@ function startRun() {
     visits: {}, placeTimes: [], trickT: CFG.tricksters.firstAfter, banner: null, banners: []
   });
   ov.hidden = true;
+  setPlaying(true);
   enterPlace(0);
 }
 
@@ -61,11 +62,19 @@ function enterPlace(i) {
   S.intro = newType;   // the first mosquito of the visit is the new type
 
   pickMission(place, loop);
+  trickPlanVisit(place);
   document.getElementById("tag").textContent = `Loop ${loop + 1} · ${place.tag}`;
   document.getElementById("hint").textContent = place.hint;
   place.enter(loop);
+  fitCanvas();   // the lamp button may have appeared or gone
 
-  banner(place.name.toUpperCase(), "Mission: " + S.mission.def.text(S.mission.n), CFG.run.placeBannerSec);
+  // big entry banner: what moves you on (goal) and the bonus mission
+  const c = CFG.missions, coins = c.coins + c.coinsPerLoop * loop;
+  const goal = place.threshold ? `GOAL: reach ${S.threshold} points` : place.goal;
+  banner(place.name.toUpperCase(), [
+    [goal, "#ffffff"],
+    [`BONUS: ${S.mission.def.text(S.mission.n)} (+${coins} coins)`, "#9be59b"]
+  ], CFG.run.placeBannerSec);
   if (newType && firstTime("type:" + newType)) {
     const [title, info] = TDESC[newType].split(" · ");
     banner(title.toUpperCase(), info, 2, { kind: "type", key: newType });
@@ -86,7 +95,7 @@ function placeCleared() {
   if (place.threshold && !S.mission.done) {
     const pts = Math.round(S.threshold * CFG.missions.penalty);
     S.score = Math.max(0, S.score - pts);
-    pop(W / 2, 140, `Mission missed -${pts}`, "#93a0c4", 16);
+    pop(W / 2, 140, `Bonus missed -${pts}`, "#93a0c4", 16);
   }
   sfx("wave");
   enterPlace(S.placeIdx + 1);
@@ -132,4 +141,5 @@ function endRun(reason) {
     + `<div class="btns"><button type="button" data-run="1">Run again</button>`
     + `<button type="button" class="beach" data-menu="1">Menu</button></div>`;
   ov.hidden = false;
+  setPlaying(false);
 }

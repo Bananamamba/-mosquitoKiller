@@ -101,10 +101,16 @@ function pickMission(place, loop) {
 function missionEvent(type, data) {
   const m = S.mission;
   if (!m || m.done || m.failed || !S.playing) return;
+  const before = m.progress;
   m.def.on(m, type, data || {});
   if (!m.done && m.def.n && m.def.auto !== false && m.progress >= m.n) m.done = true;
+  // there is no mission line on screen, so say it once at halfway
+  const half = Math.ceil(m.n / 2);
+  if (!m.done && m.def.auto !== false && m.n > 2 && before < half && m.progress >= half) {
+    pop(W / 2, 150, `Bonus ${m.progress}/${m.n}`, "#9be59b", 15);
+  }
   if (m.done) missionReward();
-  else if (m.failed) pop(W / 2, 170, "Mission failed", "#93a0c4", 15);
+  else if (m.failed) pop(W / 2, 170, "Bonus failed", "#93a0c4", 15);
 }
 
 // Completed: coins + bonus points right away.
@@ -114,17 +120,9 @@ function missionReward() {
   S.runCoins += coins;
   S.score += pts;
   sfx("gold");
-  pop(W / 2, 160, `MISSION COMPLETE! +${pts}`, "#9be59b", 18);
-  pop(W / 2, 186, `+${coins} coins`, "#ffc94d", 15);
+  pop(W / 2, 160, "BONUS DONE! ✓", "#9be59b", 22);
+  pop(W / 2, 188, `+${pts} points · +${coins} coins`, "#ffc94d", 15);
 }
 
 // Extra spawn weights requested by the active mission (e.g. more gold).
 const missionWeights = () => S.mission && S.mission.def.weights && !S.mission.done ? S.mission.def.weights() : {};
-
-// Text for the HUD line, e.g. "Squash 20 · 7/20".
-function missionHUD() {
-  const m = S.mission;
-  if (!m) return "";
-  const tail = m.done ? " ✓" : m.failed ? " ✗" : m.def.n ? ` · ${Math.min(m.progress, m.n)}/${m.n}` : "";
-  return m.def.short(m.n) + tail;
-}

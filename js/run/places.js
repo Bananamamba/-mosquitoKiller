@@ -5,10 +5,11 @@
 //   id, name             "bed", "Bedroom swarm"
 //   tag, hint            text above / below the canvas
 //   threshold            true = reaching the score threshold moves on (uses CFG.places[id]);
-//                        false = the place decides itself (calls placeCleared())
+//                        false = the place decides itself (calls placeCleared()); then set goal: "GOAL: ..."
 //   missions             mission ids from missions.js; one is drawn at random on entry
 //   types                mosquito types that unlock one per visit (see CFG.types)
 //   tricksters, events, fever   true = this place gets decoy bugs / random events / fever
+//   trickArrive, trickSpot()    how decoys arrive ("pop" or "fly") and where they sit (see tricksters.js)
 //   enter(loop)          set up the place
 //   leave()              clean up (optional)
 //   update(dt)           per-frame logic while playing (optional)

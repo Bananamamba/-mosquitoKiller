@@ -1,4 +1,6 @@
 <meta charset="utf-8">
+<!-- fit the phone screen (without this, phones show a tiny zoomed-out page) -->
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Mosquito Samurai</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -6,7 +8,7 @@
 <link rel="stylesheet" href="css/style.css">
 
 <div class="stage">
-  <div><div class="tag" id="tag">3:07 AM · Lights off</div><h1>Mosquito <span>Samurai</span></h1></div>
+  <div class="head"><div class="tag" id="tag">3:07 AM · Lights off</div><h1>Mosquito <span>Samurai</span></h1></div>
   <div class="wrap">
     <canvas id="cv" width="360" height="560"></canvas>
     <!-- Overlay for the menu and the end screen (filled by menu.js / run.js) -->
@@ -47,6 +49,7 @@
 <script src="js/places/beach.js"></script>
 <script src="js/places/the-one.js"></script>
 
+<script src="js/layout.js"></script>
 <script src="js/menu.js"></script>
 <script src="js/input.js"></script>
 <script src="js/loop.js"></script>

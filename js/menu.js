@@ -9,6 +9,7 @@ function showMenu() {
     + `<p class="small">Coins: ${COINS}</p>`
     + `<p class="small">Sound on. Headphones help.</p>`;
   ov.hidden = false;
+  setPlaying(false);
   document.getElementById("tag").textContent = "3:07 AM · Lights off";
   document.getElementById("hint").textContent = "Don't hit the moth, the spider, the cricket or the bee.";
 }
