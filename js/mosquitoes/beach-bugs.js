@@ -29,6 +29,7 @@ function spawnBeachBug(type, p) {
   if (type === "armored") b.armor = 1;
   S.bugs.push(b);
   if (S.playing) buzzFor(b);
+  introType(type);
   return b;
 }
 

@@ -34,7 +34,7 @@ The run itself does not change. A new place gets tricksters, events and fever by
 ## The run (the only mode)
 - One continuous run through the places in order: Bedroom → Big Moshe → The One → back to the start.
   Each loop is harder (thresholds, missions, mosquito speed). The first loop is eased.
-- Entering a place: 2-second big banner with the GOAL (what moves you on) and the BONUS mission
+- Entering a place: 4-second big banner (a tap closes it early) with the GOAL (what moves you on) and the BONUS mission
   (+coins), then it disappears. No mission line stays on screen; a short "Bonus 10/20" message at
   halfway and "BONUS DONE ✓" at the end. Smooth fade, no in-between screen.
 - Screen: the game fills the phone screen without zooming (viewport tag + `js/layout.js`). While playing,
@@ -53,7 +53,9 @@ The run itself does not change. A new place gets tricksters, events and fever by
     The One: out of slaps, out of time, or bitten 3 times. Bedroom Queen: her sting.
 - New mosquito types join one per visit to a place (bedroom: coward, pair, faker, armored, splitter;
   beach: coward, pair, faker, stucker, armored, splitter). The "X join" explanation shows only the
-  first time ever (localStorage).
+  first time ever (localStorage). Golden and fat mosquitoes also get a one-time explanation the first
+  time they appear (fat = red blood-filled body, black head: it bit you and came back; squashing it
+  heals a bite).
 - The Queen: bedroom only, from loop 2, 50% chance per visit, 10–25 s in. Her sting = a life lost.
 - Fever (bedroom, beach): fills from kills; full = 6 s of x3 points.
 - Random events (bedroom, beach), every 18–28 s: Golden hour (all gold), Heat wave (faster, x2 points).

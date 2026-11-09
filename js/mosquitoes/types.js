@@ -8,8 +8,18 @@ const TDESC = {
   faker: "Fakers join · they flicker or zigzag in",
   stuck: "Belly stuckers join · they dig in. Press and hold to pull them out",
   armored: "Armored join · helmets take two hits",
-  splitter: "Splitters join · kill one, three small ones fly out"
+  splitter: "Splitters join · kill one, three small ones fly out",
+  gold: "Golden mosquito · worth 5 points. Get it before it's gone",
+  fat: "Fat one · it bit you and came back full of blood. Squash it to heal a bite"
 };
+
+// The first time a player ever meets a type, explain it (once, remembered in localStorage).
+function introType(type) {
+  if (S.playing && TDESC[type] && firstTime("type:" + type)) {
+    const [title, info] = TDESC[type].split(" · ");
+    banner(title.toUpperCase(), info[0].toUpperCase() + info.slice(1), 2.5, { kind: "type", key: type });
+  }
+}
 
 // Weighted random among the unlocked types. The newest type is a bit more common.
 // A freshly unlocked type (S.intro) always comes first; golden hour = gold only;

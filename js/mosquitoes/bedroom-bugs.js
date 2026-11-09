@@ -19,6 +19,7 @@ function newBug(type, p, life) {
   };
   S.bugs.push(b);
   if (S.playing) buzzFor(b);
+  introType(type);
   return b;
 }
 

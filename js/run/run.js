@@ -75,10 +75,7 @@ function enterPlace(i) {
     [goal, "#ffffff"],
     [`BONUS: ${S.mission.def.text(S.mission.n)} (+${coins} coins)`, "#9be59b"]
   ], CFG.run.placeBannerSec);
-  if (newType && firstTime("type:" + newType)) {
-    const [title, info] = TDESC[newType].split(" · ");
-    banner(title.toUpperCase(), info, 2, { kind: "type", key: newType });
-  }
+  if (newType) introType(newType);
 }
 
 // Remember how long each place took (shown in debug mode).

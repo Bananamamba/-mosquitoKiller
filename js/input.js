@@ -8,7 +8,12 @@ function pt(e) {
 
 cv.addEventListener("pointerdown", e => {
   e.preventDefault();
-  if (!S.playing || S.awakeT > 0 || S.paused || S.banner) return;
+  if (!S.playing || S.awakeT > 0 || S.paused) return;
+  // a tap closes a banner once it has been up for a moment (then the next queued one shows)
+  if (S.banner) {
+    if (S.banner.max - S.banner.t > .5) S.banner = S.banners.shift() || null;
+    return;
+  }
   const p = pt(e), place = currentPlace();
   if (place.onPress && place.onPress(p, e)) return;
   // pressing on a belly stucker starts pulling it out (must hold 0.5 s, see loop.js)

@@ -4,7 +4,7 @@
 const CFG = {
   run: {
     lives: 3,
-    placeBannerSec: 2,      // banner with the mission when entering a place
+    placeBannerSec: 4,      // banner with the goal and mission when entering a place (a tap closes it early)
     lifeBannerSec: 1.6,     // "LOST A LIFE" banner
     fadeInSec: .5,          // smooth fade into the next place
   },
