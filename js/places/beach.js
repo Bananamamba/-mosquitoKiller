@@ -26,7 +26,7 @@ registerPlace({
   spawnWave: () => spawnBeachWave(),
   spawnFat() { spawnBeachBug("fat"); },
   spawnCap: e => S.lvl ? 2 + Math.min(3, Math.floor(e / 12)) : 1 + Math.min(2, Math.floor(e / 12)),
-  spawnGap: e => S.lvl ? Math.max(.4, .95 - e * .016) : Math.max(.7, 1.3 - e * .015),
+  spawnGap: e => S.lvl ? Math.max(CFG.places.beach.gapMin, .95 - e * .016) : Math.max(.7, 1.3 - e * .015),
   // Moshe is mirrored when he lies the other way, and squeezed during the roll-over
   drawRoom(now) {
     beach(now);

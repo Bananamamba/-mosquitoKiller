@@ -63,6 +63,8 @@ function firstTime(key) {
 
 // Seconds into the current place.
 const elapsed = () => S.playing ? S.placeT : 0;
+// Difficulty pressure: seconds in the place (times k) plus a bit per loop, capped (CFG.difficulty).
+const pressure = (k = 1) => Math.min(CFG.difficulty.max, elapsed() * k + S.lvl * CFG.difficulty.perLoop);
 // Streak multiplier: 5 in a row = x2, 10 = x3.
 const mult = () => S.streak >= 10 ? 3 : S.streak >= 5 ? 2 : 1;
 

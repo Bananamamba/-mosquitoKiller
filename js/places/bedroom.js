@@ -24,8 +24,8 @@ registerPlace({
 
   spawnWave,
   spawnFat() { newBug("fat", freePoint(), 1.6); },
-  // e = seconds in the place + loop * 10; the first loop is eased
+  // e = difficulty pressure (see pressure() in setup.js); the first loop is eased
   spawnCap: e => 1 + Math.min(2, Math.floor(e / (S.lvl ? 10 : 14))),
-  spawnGap: e => S.lvl ? Math.max(.3, .85 - e * .017) : Math.max(.45, 1 - e * .015),
+  spawnGap: e => S.lvl ? Math.max(CFG.places.bed.gapMin, .85 - e * .017) : Math.max(.45, 1 - e * .015),
   drawRoom: bedroom,
 });

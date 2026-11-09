@@ -59,10 +59,10 @@ function updPull(dt) {
   }
 }
 
-// Spawning: a max number on screen (cap) that grows with time, and a spawn timer that gets shorter.
+// Spawning: a max number on screen (cap) that grows with pressure, and a spawn timer that gets shorter.
 // The place sets both; fever and the "bad luck" effect add more and spawn faster.
 function updSpawning(dt, place) {
-  const e = elapsed() + S.lvl * 10, more = effectOn("moreEnemies") ? CFG.effects.moreEnemies : null;
+  const e = pressure(), more = effectOn("moreEnemies") ? CFG.effects.moreEnemies : null;
   const cap = S.playing ? place.spawnCap(e) : 1;
   S.spawn -= dt * (S.feverT > 0 ? 1.8 : 1) * (more ? more.spawnMult : 1);
   if (S.spawn <= 0 && S.bugs.filter(b => b.state !== "out").length < cap + (more ? more.capAdd : 0) + (S.feverT > 0 ? 2 : 0)) {

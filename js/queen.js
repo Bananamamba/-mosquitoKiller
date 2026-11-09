@@ -2,8 +2,8 @@
 // while "HER STING" fills. If it fills, she lunges and laughs = loss.
 // Phases: black → scare → shrink → fight → (dying | lunge → laugh).
 
-// Hit points: weaker on the first loop, +10 per loop after that.
-const qhp = () => S.lvl ? QHP + S.lvl * 10 : 30;
+// Hit points: weaker on the first loop, +10 per loop after that, up to CFG.queen.maxHp.
+const qhp = () => S.lvl ? Math.min(CFG.queen.maxHp, QHP + S.lvl * 10) : 30;
 
 function queenStart() {
   S.bugs.forEach(b => buzzStop(b, true));

@@ -13,11 +13,17 @@ const CFG = {
   // pps (points per second) was measured with a bot "average player" (~75% accurate, a tap every ~0.4 s,
   // median of 10 rounds); index = loop (last value repeats). Scoring varies a lot (fever × streak),
   // and later loops score much faster, so check real players with ?debug and adjust these first.
+  // Floors keep late loops playable: stayMin = shortest time a bedroom mosquito stays,
+  // gapMin = shortest time between spawns, flightMin / lifeMin = beach flight / sitting time.
   places: {
-    bed: { targetSeconds: 40, growPerLoop: 1.10, pps: [5, 12, 13], maxBites: 6 },
-    beach: { targetSeconds: 40, growPerLoop: 1.10, pps: [2.8, 8, 8] },
-    one: { seconds: 45, slaps: [4, 3], lamps: [3, 2], maxBites: 3 },  // [first loop, later loops]
+    bed: { targetSeconds: 40, growPerLoop: 1.10, pps: [5, 12, 13], maxBites: 6, stayMin: .75, gapMin: .45 },
+    beach: { targetSeconds: 40, growPerLoop: 1.10, pps: [2.8, 8, 8], flightMin: 1.0, lifeMin: .6, gapMin: .55 },
+    one: { seconds: 45, slaps: [4, 3], lamps: [3, 2], maxBites: 3, maxSpeed: 1.6 },  // [first loop, later loops]
   },
+
+  // Difficulty pressure = seconds in the place + perLoop for every loop, never above max.
+  // It drives spawn speed, how many at once and how fast they bite. The cap makes late loops level off.
+  difficulty: { perLoop: 5, max: 40 },
 
   // New mosquito types: the first visit to a place already has this many, then +1 per visit.
   types: { atFirstVisit: 1, perVisit: 1 },
@@ -69,7 +75,7 @@ const CFG = {
 
   fever: { perKill: .07, perGold: .15, perMiss: .25, sec: 6, points: 3 },
 
-  queen: { fromLoop: 1, chance: .5, at: [10, 25] },   // bedroom: chance per visit, seconds into the visit
+  queen: { fromLoop: 1, chance: .5, at: [10, 25], maxHp: 55 },   // bedroom: chance per visit, seconds into the visit
 
   // Coins from score: every `every` points in a run gives `amount` coins (on top of bonus missions).
   scoreCoins: { every: 500, amount: 5 },

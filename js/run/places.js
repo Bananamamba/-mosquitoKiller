@@ -14,7 +14,7 @@
 //   leave()              clean up (optional)
 //   update(dt)           per-frame logic while playing (optional)
 //   spawnWave()          spawn the next mosquito(s); omit for places without normal spawning
-//   spawnCap(e), spawnGap(e)   how many on screen / seconds between spawns (e = seconds + loop*10)
+//   spawnCap(e), spawnGap(e)   how many on screen / seconds between spawns (e = difficulty pressure)
 //   spawnFat()           a fat, blood-filled mosquito coming back after a bite
 //   drawRoom(now)        the background
 //   onPress(p, e), onMove(p), onRelease()   own touch handling (optional; return true from onPress = handled)

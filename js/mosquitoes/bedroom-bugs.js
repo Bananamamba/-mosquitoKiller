@@ -24,9 +24,9 @@ function newBug(type, p, life) {
 }
 
 function spawnWave() {
-  const e = elapsed() + S.lvl * 10;
+  const e = pressure();
   // how long each mosquito stays: shorter as time and loops go on
-  const base = Math.max(.6, (S.lvl ? 1.3 : 1.6) - e * .022) * (heatOn() ? .7 : 1);
+  const base = Math.max(CFG.places.bed.stayMin, (S.lvl ? 1.3 : 1.6) - e * .022) * (heatOn() ? .7 : 1);
   const type = S.playing ? pickE() : "norm";
   const p = freePoint();
   if (type === "pair") {

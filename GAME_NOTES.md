@@ -42,6 +42,11 @@ The run itself does not change. A new place gets tricksters, events and fever by
   fever lines); event/effect timers sit in the bottom bar, not over the game.
 - Bedroom and beach have a **score threshold** (points scored inside that place). Reaching it moves on,
   even if the mission is not done. The One has no threshold: catching it moves on.
+- **Difficulty** (2026-11-09, after "from loop 4 it's impossible"): pressure = seconds in the place +
+  5 per loop, capped at 40 (`CFG.difficulty`), so it levels off around loop 5 instead of maxing out
+  instantly. Floors: a bedroom mosquito stays at least 0.75 s, spawns at least 0.45 s apart (beach:
+  flight ≥ 1.0 s, sits ≥ 0.6 s before biting, spawns ≥ 0.55 s apart). The One's speed and the Queen's
+  health are capped too. Was: +10 per loop with no cap, so from loop 4 everything was at max speed at once.
 - **Threshold by time**: an average player should reach it in 35–45 s on the first loop; +10% time each loop.
   Threshold = average points per second (measured with a bot, `pps` in config) × target seconds × 1.1^loop.
 - **Mission** (one drawn at random per visit): completed = coins + bonus points right away.

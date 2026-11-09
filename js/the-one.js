@@ -21,7 +21,7 @@ function oneSpawn() {
     nextLand: 3 + Math.random() * 2,           // seconds until it looks for a place to land
     diveT: (S.lvl ? 7 : 11) + Math.random() * 3, // seconds until it dives at you to bite
     diving: false, flee: 0,
-    sp: (S.lvl ? 95 : 75) * Math.pow(1.15, S.lvl) * Math.pow(1.1, Math.max(0, c - 2)),
+    sp: (S.lvl ? 95 : 75) * Math.min(CFG.places.one.maxSpeed, Math.pow(1.15, S.lvl) * Math.pow(1.1, Math.max(0, c - 2))),
     avoid: [],   // places you slapped recently; it stays away from them
     dead: false, winT: 0, ph: 0, face: 1, near: 0
   };
