@@ -15,3 +15,25 @@ function drawDebug() {
   rows.forEach((r, i) => g.fillText(r, 10, 110 + i * 14));
   g.restore();
 }
+
+// Shop test buttons, shown in the shop only in test mode (players never see them).
+function debugShopButtons() {
+  if (!DEBUG) return "";
+  return `<div class="btns debug"><button type="button" data-dbg="unlock">Unlock all slippers</button>`
+    + `<button type="button" data-dbg="reset">Reset shop</button></div>`;
+}
+
+function debugShop(action) {
+  if (!DEBUG) return;
+  if (action === "unlock") {
+    OWNED = CFG.slippers.map(s => s.id);   // owned for free, coins untouched
+  } else if (action === "reset") {
+    OWNED = ["basic"];                     // back to a brand-new player
+    SLIPPER = "basic";
+    COINS = 0;
+  }
+  save("mosq-owned", OWNED);
+  save("mosq-slipper", SLIPPER);
+  save("mosq-coins", COINS);
+  showShop();
+}

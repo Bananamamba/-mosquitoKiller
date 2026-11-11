@@ -37,7 +37,8 @@ function showShop() {
   }).join("");
   ov.innerHTML = `<h2>Slipper shop</h2><p>Your coins: <b class="coins">${COINS}</b></p>`
     + `<div class="shop">${cards}</div>`
-    + `<div class="btns"><button type="button" class="beach" data-menu="1">Back</button></div>`;
+    + `<div class="btns"><button type="button" class="beach" data-menu="1">Back</button></div>`
+    + debugShopButtons();
   ov.hidden = false;
   drawPreviews();
 }

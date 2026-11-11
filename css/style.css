@@ -128,6 +128,10 @@ button.slipcard:active { transform: none; box-shadow: none; }
 .slipcard i { font-style: normal; font-size: .75rem; font-weight: 800; color: #9be59b; }
 button.buy { font-size: .7rem; padding: 6px 12px; }
 
+/* test-mode buttons (?debug only): dashed so they never look like part of the game */
+.btns.debug { margin-top: 10px; }
+.btns.debug button { font-size: .7rem; padding: 6px 12px; background: none; color: #7fe0ff; border: 2px dashed #7fe0ff; }
+
 @media (prefers-reduced-motion: reduce) {
   button:active { transform: none; }
 }

@@ -25,4 +25,5 @@ ov.addEventListener("click", e => {
   else if ((b = btn("button[data-buy]"))) buySlipper(b.dataset.buy);
   else if (btn("button[data-shop]")) showShop();
   else if (btn("button[data-menu]")) showMenu();
+  else if ((b = btn("button[data-dbg]"))) debugShop(b.dataset.dbg);   // test mode only
 });

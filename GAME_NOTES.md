@@ -68,6 +68,9 @@ The run itself does not change. A new place gets tricksters, events and fever by
   with a halfway mark.
 - **Test mode**: open the game with `?debug` (e.g. `.../-mosquitoKiller/?debug`) to see on screen how many
   seconds each place took (also printed in the browser console). Use it to tune `pps` / `targetSeconds`.
+  In test mode the shop also shows two dashed buttons: "Unlock all slippers" (all owned, free) and
+  "Reset shop" (basic only, 0 coins) for testing buying from scratch. Without `?debug` they don't exist,
+  so players never see them. A store build must not add `?debug` to its start URL.
 
 ## Coins and the slipper shop
 - Coins are saved across runs (localStorage `mosq-coins`). Earned from: completed bonus missions
